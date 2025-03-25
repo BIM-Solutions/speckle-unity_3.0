@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using UnityEngine;
 
 #nullable enable
 namespace Speckle.ConnectorUnity.Wrappers.Selection
 {
     [Serializable]
-    public sealed class BranchSelection : OptionSelection<Branch>
+    public sealed class BranchSelection : OptionSelection<Model>
     {
         [field:
             SerializeField,
@@ -34,27 +36,25 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection
             StreamSelection.OnSelectionChange = RefreshOptions;
         }
 
-        protected override string? KeyFunction(Branch? value) => value?.id;
+        protected override string? KeyFunction(Model? value) => value?.id;
 
         public override void RefreshOptions()
         {
-            Stream? stream = StreamSelection.Selected;
-            if (stream == null)
+            Project? project = StreamSelection.Selected;
+            if (project == null)
                 return;
-            IReadOnlyList<Branch> branches;
+            IReadOnlyList<Model> models;
             try
             {
-                branches = Client!
-                    .StreamGetBranches(stream.id, BranchesLimit, CommitsLimit)
-                    .GetAwaiter()
-                    .GetResult();
+                var modelsCollection = Client!.Model.GetModels(project.id, BranchesLimit).GetAwaiter().GetResult();
+                models = modelsCollection.items;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"Unable to refresh {this}\n{e}");
-                branches = Array.Empty<Branch>();
+                models = Array.Empty<Model>();
             }
-            GenerateOptions(branches, (b, _) => b.name == "main");
+            GenerateOptions(models, (b, _) => b.name == "main");
         }
     }
 }

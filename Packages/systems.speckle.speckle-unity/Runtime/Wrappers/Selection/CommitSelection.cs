@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using UnityEngine;
+using Version = Speckle.Core.Api.GraphQL.Models.Version;
 
 #nullable enable
 namespace Speckle.ConnectorUnity.Wrappers.Selection
 {
     [Serializable]
-    public sealed class CommitSelection : OptionSelection<Commit>
+    public sealed class CommitSelection : OptionSelection<Version>
     {
         [field: SerializeReference]
         public BranchSelection BranchSelection { get; private set; }
@@ -25,15 +27,15 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection
             BranchSelection.OnSelectionChange = RefreshOptions;
         }
 
-        protected override string? KeyFunction(Commit? value) => value?.id;
+        protected override string? KeyFunction(Version? value) => value?.id;
 
         public override void RefreshOptions()
         {
-            Branch? branch = BranchSelection.Selected;
-            if (branch == null)
+            Model? model = BranchSelection.Selected;
+            if (model == null)
                 return;
-            List<Commit> commits = branch.commits.items;
-            GenerateOptions(commits, (_, i) => i == 0);
+            List<Version> versions = model.versions.items;
+            GenerateOptions(versions, (_, i) => i == 0);
         }
     }
 }

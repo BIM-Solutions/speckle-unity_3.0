@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+    <assembly>
+        <name>Speckle.Sdk.Dependencies</name>
+    </assembly>
+    <members>
+        <member name="F:Speckle.Sdk.Logging.SdkActivityStatusCode.Unset">
+            <summary>Unset status code is the default value indicating the status code is not initialized.</summary>
+        </member>
+        <member name="F:Speckle.Sdk.Logging.SdkActivityStatusCode.Ok">
+            <summary>Status code indicating the operation has been validated and completed successfully.</summary>
+        </member>
+        <member name="F:Speckle.Sdk.Logging.SdkActivityStatusCode.Error">
+            <summary>Status code indicating an error is encountered during the operation.</summary>
+        </member>
+        <member name="M:Speckle.Sdk.Helpers.SpeckleHttpClientHandler.SendAsync(System.Net.Http.HttpRequestMessage,System.Threading.CancellationToken)">
+            <exception cref="T:System.OperationCanceledException">
+                <paramref name="cancellationToken" /> requested cancel</exception>
+            <exception cref="T:System.Net.Http.HttpRequestException">Send request failed</exception>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute">
+            <summary>
+            Specifies the priority of a member in overload resolution. When unspecified, the default priority is 0.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute" /> class.
+            </summary>
+            <param name="priority">The priority of the attributed member. Higher numbers are prioritized, lower numbers are deprioritized. 0 is the default if no attribute is present.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.Priority">
+            <summary>
+            The priority of the member.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ParamCollectionAttribute">
+            <summary>
+            Indicates that a method will allow a variable number of arguments in its invocation.
+            </summary>
+        </member>
+    </members>
+</doc>

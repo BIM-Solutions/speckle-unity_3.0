@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using UnityEngine;
 
 #nullable enable
 namespace Speckle.ConnectorUnity.Wrappers.Selection
 {
     [Serializable]
-    public sealed class StreamSelection : OptionSelection<Stream>
+    public sealed class StreamSelection : OptionSelection<Project>
     {
         private const int DefaultRequestLimit = 50;
 
@@ -30,23 +31,24 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection
 
         public override Client? Client => AccountSelection.Client;
 
-        protected override string? KeyFunction(Stream? value) => value?.id;
+        protected override string? KeyFunction(Project? value) => value?.id;
 
         public override void RefreshOptions()
         {
             if (Client == null)
                 return;
-            IReadOnlyList<Stream> streams;
+            IReadOnlyList<Project> projects;
             try
             {
-                streams = Client.StreamsGet(StreamsLimit).GetAwaiter().GetResult();
+                var projectCollection = Client.ActiveUser.GetProjects(StreamsLimit).GetAwaiter().GetResult();
+                projects = projectCollection.items;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"Unable to refresh {this}\n{e}");
-                streams = Array.Empty<Stream>();
+                projects = Array.Empty<Project>();
             }
-            GenerateOptions(streams, (_, i) => i == 0);
+            GenerateOptions(projects, (_, i) => i == 0);
         }
     }
 }

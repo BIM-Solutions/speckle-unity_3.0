@@ -34,7 +34,7 @@ namespace Speckle.ConnectorUnity.Components
 
         [Header("Events")]
         [HideInInspector]
-        public BranchSelectionEvent OnBranchSelectionChange;
+        public ModelSelectionEvent OnBranchSelectionChange;
 
         [Obsolete("No longer used")]
         [HideInInspector]

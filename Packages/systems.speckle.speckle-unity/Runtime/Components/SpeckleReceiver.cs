@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Speckle.ConnectorUnity.Utils;
 using Speckle.ConnectorUnity.Wrappers.Selection;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
@@ -17,6 +18,7 @@ using Speckle.Core.Models.GraphTraversal;
 using Speckle.Core.Transports;
 using UnityEngine;
 using UnityEngine.Events;
+using Version = Speckle.Core.Api.GraphQL.Models.Version;
 
 [assembly: InternalsVisibleTo("Speckle.ConnectorUnity.Components.Editor")]
 
@@ -44,7 +46,7 @@ namespace Speckle.ConnectorUnity.Components
 #nullable enable
         [Header("Events")]
         [HideInInspector]
-        public CommitSelectionEvent OnCommitSelectionChange = new();
+        public VersionSelectionEvent OnCommitSelectionChange = new();
 
         [HideInInspector]
         public OperationProgressEvent OnReceiveProgressAction = new();
@@ -173,13 +175,13 @@ namespace Speckle.ConnectorUnity.Components
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            ValidateSelection(out Client? client, out Stream? stream, out Commit? commit);
+            ValidateSelection(out Client? client, out Project? project, out Version? version);
 
             Base result = await ReceiveAsync(
                     client: client,
-                    streamId: stream.id,
-                    objectId: commit.referencedObject,
-                    commit: commit,
+                    streamId: project.id,
+                    objectId: version.referencedObject,
+                    version: version,
                     onProgressAction: dict => OnReceiveProgressAction.Invoke(dict),
                     onTotalChildrenCountKnown: c => OnTotalChildrenCountKnown.Invoke(c),
                     cancellationToken: cancellationToken
@@ -193,22 +195,22 @@ namespace Speckle.ConnectorUnity.Components
         /// Gets the current selection
         /// </summary>
         /// <param name="client">The selected Account's Client</param>
-        /// <param name="stream">The selected <see cref="Stream"/></param>
-        /// <param name="commit">The selected <see cref="Commit"/></param>
+        /// <param name="project">The selected <see cref="Stream"/></param>
+        /// <param name="version">The selected <see cref="Commit"/></param>
         /// <exception cref="InvalidOperationException">Selection was not complete or invalid</exception>
-        public void ValidateSelection(out Client client, out Stream stream, out Commit commit)
+        public void ValidateSelection(out Client client, out Project project, out Version version)
         {
             Client? selectedClient = Account.Client;
             client =
                 selectedClient ?? throw new InvalidOperationException("Invalid Speckle account selection");
 
-            Stream? selectedStream = Stream.Selected;
-            stream =
-                selectedStream ?? throw new InvalidOperationException("Invalid Speckle project selection");
+            Project? selectedProject = Stream.Selected;
+            project =
+                selectedProject ?? throw new InvalidOperationException("Invalid Speckle project selection");
 
-            Commit? selectedCommit = Commit.Selected;
-            commit =
-                selectedCommit ?? throw new InvalidOperationException("Invalid Speckle version selection");
+            Version? selectedVersion = Commit.Selected;
+            version =
+                selectedVersion ?? throw new InvalidOperationException("Invalid Speckle version selection");
         }
 
         /// <summary>
@@ -243,7 +245,7 @@ namespace Speckle.ConnectorUnity.Components
         /// <param name="client"></param>
         /// <param name="streamId"></param>
         /// <param name="objectId"></param>
-        /// <param name="commit"></param>
+        /// <param name="version"></param>
         /// <param name="onProgressAction"></param>
         /// <param name="onTotalChildrenCountKnown"></param>
         /// <param name="cancellationToken"></param>
@@ -253,7 +255,7 @@ namespace Speckle.ConnectorUnity.Components
             Client client,
             string streamId,
             string objectId,
-            Commit? commit,
+            Version? version,
             Action<ConcurrentDictionary<string, int>>? onProgressAction = null,
             Action<int>? onTotalChildrenCountKnown = null,
             CancellationToken cancellationToken = default
@@ -284,13 +286,13 @@ namespace Speckle.ConnectorUnity.Components
                     { "mode", nameof(SpeckleReceiver) },
                     {
                         "sourceHostApp",
-                        HostApplications.GetHostAppFromString(commit?.sourceApplication).Slug
+                        HostApplications.GetHostAppFromString(version?.sourceApplication).Slug
                     },
-                    { "sourceHostAppVersion", commit?.sourceApplication ?? "" },
+                    { "sourceHostAppVersion", version?.sourceApplication ?? "" },
                     { "hostPlatform", Application.platform.ToString() },
                     {
                         "isMultiplayer",
-                        commit?.authorId != null && commit?.authorId != client.Account?.userInfo?.id
+                        version?.authorUser.id != null && version?.authorUser.id != client.Account?.userInfo?.id
                     },
                 }
             );
@@ -300,12 +302,12 @@ namespace Speckle.ConnectorUnity.Components
             //Read receipt
             try
             {
-                await client
-                    .CommitReceived(
+                await client.Version.Received(
+                        
                         new CommitReceivedInput
                         {
                             streamId = streamId,
-                            commitId = commit?.id,
+                            commitId = version?.id,
                             message = $"received commit from {Application.unityVersion}",
                             sourceApplication = HostApplications.Unity.GetVersion(
                                 CoreUtils.GetHostAppVersion()
@@ -387,8 +389,8 @@ namespace Speckle.ConnectorUnity.Components
         [Obsolete("Use " + nameof(ValidateSelection))]
         public bool GetSelection(
             [NotNullWhen(true)] out Client? client,
-            [NotNullWhen(true)] out Stream? stream,
-            [NotNullWhen(true)] out Commit? commit,
+            [NotNullWhen(true)] out Project? stream,
+            [NotNullWhen(true)] out Version? commit,
             [NotNullWhen(false)] out string? error
         )
         {
@@ -538,10 +540,10 @@ namespace Speckle.ConnectorUnity.Components
     }
 
     [Serializable]
-    public sealed class CommitSelectionEvent : UnityEvent<Commit?> { }
+    public sealed class VersionSelectionEvent : UnityEvent<Version?> { }
 
     [Serializable]
-    public sealed class BranchSelectionEvent : UnityEvent<Branch?> { }
+    public sealed class ModelSelectionEvent : UnityEvent<Model?> { }
 
     [Serializable]
     public sealed class ErrorActionEvent : UnityEvent<string, Exception> { }

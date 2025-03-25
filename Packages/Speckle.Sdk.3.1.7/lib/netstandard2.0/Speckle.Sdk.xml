@@ -1,0 +1,2817 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Speckle.Sdk</name>
+    </assembly>
+    <members>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLException">
+            <summary>
+            The base class for all GraphQL errors (these are errors in the graphql response)
+            Some specific codes are maped to subtypes <see cref="T:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler"/>
+            <seealso cref="T:Speckle.Sdk.Api.SpeckleGraphQLForbiddenException"/>
+            <seealso cref="T:Speckle.Sdk.Api.SpeckleGraphQLInternalErrorException"/>
+            <seealso cref="T:Speckle.Sdk.Api.SpeckleGraphQLBadInputException"/>
+            <seealso cref="T:Speckle.Sdk.Api.SpeckleGraphQLInvalidQueryException"/>
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLForbiddenException">
+            <summary>
+            Represents a "FORBIDDEN" or "UNAUTHORIZED" GraphQL error as an exception.
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors/#unauthenticated
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors/#forbidden
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLInternalErrorException">
+            <summary>
+            Represents a "INTERNAL_SERVER_ERROR" GraphQL error as an exception.
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors#internal_server_error
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLStreamNotFoundException">
+            <summary>
+            Represents the custom "STREAM_NOT_FOUND" GraphQL error as an exception.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLBadInputException">
+            <summary>
+            Represents a "BAD_USER_INPUT" GraphQL error as an exception.
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors#bad_user_input
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.SpeckleGraphQLInvalidQueryException">
+            <summary>
+            Represents a "GRAPHQL_PARSE_FAILED" or "GRAPHQL_VALIDATION_FAILED" GraphQL error as an exception.
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors#graphql_parse_failed
+            https://www.apollographql.com/docs/apollo-server/v2/data/errors#graphql_validation_failed
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Client.#ctor(Microsoft.Extensions.Logging.ILogger{Speckle.Sdk.Api.Client},Speckle.Sdk.Logging.ISdkActivityFactory,Speckle.Sdk.ISpeckleApplication,Speckle.Sdk.Helpers.ISpeckleHttp,Speckle.Sdk.Credentials.Account)">
+            <param name="account"></param>
+            <exception cref="T:System.ArgumentException"><paramref name="account"/> was null</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Client.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Client.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})">
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)">
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(System.Collections.Generic.IReadOnlyCollection{GraphQL.GraphQLError})"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(System.Collections.Generic.IReadOnlyCollection{GraphQL.GraphQLError})">
+            <exception cref="T:System.AggregateException">Containing a <see cref="T:Speckle.Sdk.Api.SpeckleGraphQLException"/> (or subclass of) for each graphql Error</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.GraphQLHttpClientExtensions.GetServerVersion(GraphQL.Client.Http.GraphQLHttpClient,System.Threading.CancellationToken)">
+            <summary>
+            Gets the version of the current server. Useful for guarding against unsupported api calls on newer or older servers.
+            </summary>
+            <remarks>
+            Expects the response to either be<br/>
+             - 1. The literal string <c>dev</c>, which will return <c>999.999.999</c><br/>
+             - 2. A 3 numeral semver (anything after the first <c>-</c> character will be ignored)<br/>
+            </remarks>
+            <param name="cancellationToken"></param>
+            <returns>A 3 numeral <see cref="T:System.Version"/> object (e.g. <c>2.21.3.alpha123</c> becomes <c>2.21.3</c>)</returns>
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)"/></exception>
+            <exception cref="T:System.FormatException">Server responded with a server version, but it was not in an expected format</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)">
+            <exception cref="T:System.AggregateException">Request failed on the GraphQL layer, each GraphQL error will be a <see cref="T:Speckle.Sdk.Api.SpeckleGraphQLException"/> (or subclass of) as an inner exception</exception>
+            <exception cref="T:GraphQL.Client.Http.GraphQLHttpRequestException">Request failed on the HTTP layer (non-successful response code)</exception>
+            <exception cref="T:System.Net.Http.HttpRequestException">The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested a cancel</exception>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:Speckle.Sdk.Api.Client"/> already been disposed</exception>
+            <exception cref="T:Speckle.Newtonsoft.Json.JsonException">The response failed to deserialize, probably because the server version is incompatible with this version of the SDK, or there is a mistake in a query (queried for a property that isn't in the C# model, or a required property was null)</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})">
+            <exception cref="T:System.AggregateException">Containing a <see cref="T:Speckle.Sdk.Api.SpeckleGraphQLException"/> (or subclass of) for each graphql Error</exception>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:Speckle.Sdk.Api.Client"/> already been disposed</exception>
+        </member>
+        <member name="T:Speckle.Sdk.Api.GraphQL.Models.SerializedViewerState">
+            <summary>
+            See <c>SerializedViewerState</c> in <a href="https://github.com/specklesystems/speckle-server/blob/main/packages/shared/src/viewer/helpers/state.ts">/shared/src/viewer/helpers/state.ts</a>
+            </summary>
+            <remarks>
+            Note, there are many FE/Viewer specific properties on this object that are not reflected here (hence the <see cref="T:Speckle.Newtonsoft.Json.MissingMemberHandling"/> override)
+            We can add them as needed, keeping in mind flexiblity for breaking changes (these classes are intentionally not documented in our schema!)
+            </remarks>
+        </member>
+        <member name="T:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1">
+            <summary>
+            With the power of GraphQL Aliasing, we can avoid having to craft individual response classes for each query
+            Instead, we can alias the query object as <c>data</c>, and use either <see cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1"/> or <see cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.NullableResponse`1"/>
+            To deserialize the response
+            </summary>
+            <param name="data"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1.#ctor(`0)">
+            <summary>
+            With the power of GraphQL Aliasing, we can avoid having to craft individual response classes for each query
+            Instead, we can alias the query object as <c>data</c>, and use either <see cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1"/> or <see cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.NullableResponse`1"/>
+            To deserialize the response
+            </summary>
+            <param name="data"></param>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1.data">
+            <summary></summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.GraphQL.Models.Responses.NullableResponse`1">
+            <inheritdoc cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Models.Responses.NullableResponse`1.#ctor(`0)">
+            <inheritdoc cref="T:Speckle.Sdk.Api.GraphQL.Models.Responses.RequiredResponse`1"/>
+        </member>
+        <member name="P:Speckle.Sdk.Api.GraphQL.Models.ServerInfo.frontend2">
+            <remarks>
+            This field is not returned from the GQL API,
+            it should be populated after construction from the response headers.
+            see <see cref="T:Speckle.Sdk.Credentials.AccountManager"/>
+            </remarks>
+        </member>
+        <member name="P:Speckle.Sdk.Api.GraphQL.Models.ServerInfo.url">
+            <remarks>
+            This field is not returned from the GQL API,
+            it should be populated after construction.
+            see <see cref="T:Speckle.Sdk.Credentials.AccountManager"/>
+            </remarks>
+        </member>
+        <member name="P:Speckle.Sdk.Api.GraphQL.Models.ServerMigration.movedFrom">
+            <summary>
+            Previous URI where this server used to be deployed
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Api.GraphQL.Models.ServerMigration.movedTo">
+            <summary>
+            New URI where this server is now deployed
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.Get(System.Threading.CancellationToken)">
+            <summary>
+            Gets the currently active user profile (as extracted from the authorization header)
+            </summary>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <returns>the requested user, or null if <see cref="T:Speckle.Sdk.Api.Client"/> was initialised with an unauthenticated account</returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.Update(Speckle.Sdk.Api.GraphQL.Inputs.UserUpdateInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.GetProjects(System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.UserProjectsFilter,System.Threading.CancellationToken)">
+            <param name="limit">Max number of projects to fetch</param>
+            <param name="cursor">Optional cursor for pagination</param>
+            <param name="filter">Optional filter</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.GetProjectInvites(System.Threading.CancellationToken)">
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <exception cref="T:Speckle.Sdk.SpeckleException">The ActiveUser could not be found (e.g. the client is not authenticated)</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.ProjectInvites(System.Threading.CancellationToken)">
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.ActiveUserResource.GetProjectInvites(System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Get(System.String,System.String,System.Int32,System.String,System.Threading.CancellationToken)">
+            <param name="commentId"></param>
+            <param name="projectId"></param>
+            <param name="repliesLimit">Max number of comment replies to fetch</param>
+            <param name="repliesCursor">Optional cursor for pagination</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.GetProjectComments(System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectCommentsFilter,System.Int32,System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="limit">Max number of comments to fetch</param>
+            <param name="cursor">Optional cursor for pagination</param>
+            <param name="filter">Optional filter</param>
+            <param name="repliesLimit">Max number of comment replies to fetch</param>
+            <param name="repliesCursor">Optional cursor for pagination</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.CreateCommentInput,System.Threading.CancellationToken)">
+            <remarks>
+            This function only exists here to be able to integration tests the queries.
+            The process of creating a comment is more complex and javascript specific than we can expose to our SDKs at this time.
+            </remarks>
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Edit(Speckle.Sdk.Api.GraphQL.Inputs.EditCommentInput,System.Threading.CancellationToken)">
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.CreateCommentInput,System.Threading.CancellationToken)"/></remarks>
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Archive(Speckle.Sdk.Api.GraphQL.Inputs.ArchiveCommentInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.MarkViewed(Speckle.Sdk.Api.GraphQL.Inputs.MarkCommentViewedInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Reply(Speckle.Sdk.Api.GraphQL.Inputs.CreateCommentReplyInput,System.Threading.CancellationToken)">
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.CommentResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.CreateCommentInput,System.Threading.CancellationToken)"/></remarks>
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.Get(System.String,System.String,System.Threading.CancellationToken)">
+            <param name="modelId"></param>
+            <param name="projectId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.GetWithVersions(System.String,System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ModelVersionsFilter,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.GetWithVersions(System.String,System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ModelVersionsFilter,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="modelId"></param>
+            <param name="versionsLimit">Max number of versions to fetch</param>
+            <param name="versionsCursor">Optional cursor for pagination</param>
+            <param name="versionsFilter">Optional versions filter</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <see cref="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.Get(System.String,System.String,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.GetModels(System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectModelsFilter,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="modelsLimit">Max number of models to fetch</param>
+            <param name="modelsCursor">Optional cursor for pagination</param>
+            <param name="modelsFilter">Optional models filter</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.CreateModelInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.Delete(Speckle.Sdk.Api.GraphQL.Inputs.DeleteModelInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ModelResource.Update(Speckle.Sdk.Api.GraphQL.Inputs.UpdateModelInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.OtherUserResource.Get(System.String,System.Threading.CancellationToken)">
+             <summary>
+            
+             </summary>
+             <param name="id"></param>
+             <param name="cancellationToken"></param>
+             <returns>the requested user, or null if the user does not exist</returns>
+             <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.OtherUserResource.UserSearch(System.String,System.Int32,System.String,System.Boolean,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Searches for a user on the server, by name or email
+            </summary>
+            <param name="query">String to search for. Must be at least 3 characters</param>
+            <param name="limit">Max number of users to fetch</param>
+            <param name="cursor">Optional cursor for pagination</param>
+            <param name="archived"></param>
+            <param name="emailOnly"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectInviteResource.Create(System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectInviteCreateInput,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectInviteResource.Use(Speckle.Sdk.Api.GraphQL.Inputs.ProjectInviteUseInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectInviteResource.Get(System.String,System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="token"></param>
+            <param name="cancellationToken"></param>
+            <returns>The invite, or null if no invite exists</returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectInviteResource.Cancel(System.String,System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="inviteId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Get(System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithModels(System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectModelsFilter,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithTeam(System.String,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithModels(System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectModelsFilter,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="modelsLimit">Max number of models to fetch</param>
+            <param name="modelsCursor">Optional cursor for pagination</param>
+            <param name="modelsFilter">Optional models filter</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Get(System.String,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithTeam(System.String,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithTeam(System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Get(System.String,System.Threading.CancellationToken)"/>
+            <seealso cref="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.GetWithModels(System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ProjectModelsFilter,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.ProjectCreateInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Update(Speckle.Sdk.Api.GraphQL.Inputs.ProjectUpdateInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.Delete(System.String,System.Threading.CancellationToken)">
+            <param name="projectId">The id of the Project to delete</param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.ProjectResource.UpdateRole(Speckle.Sdk.Api.GraphQL.Inputs.ProjectUpdateRoleInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateUserProjectsUpdatedSubscription">
+            <summary>Track newly added or deleted projects owned by the active user</summary>
+            <remarks>
+            You should add event listeners to the returned <see cref="T:Speckle.Sdk.Api.GraphQL.Resources.Subscription`1"/> object.<br/>
+            You can add multiple listeners to a <see cref="T:Speckle.Sdk.Api.GraphQL.Resources.Subscription`1"/>, and this should be preferred over creating many subscriptions.<br/>
+            You should ensure proper disposal of the <see cref="T:Speckle.Sdk.Api.GraphQL.Resources.Subscription`1"/> when you're done (see <see cref="T:System.IDisposable"/>)<br/>
+            Disposing of the <see cref="T:Speckle.Sdk.Api.Client"/> or <see cref="T:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource"/> will also dispose any <see cref="T:Speckle.Sdk.Api.GraphQL.Resources.Subscription`1"/>s it created.
+            </remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateProjectCommentsUpdatedSubscription(Speckle.Sdk.Api.GraphQL.Inputs.ViewerUpdateTrackingTarget)">
+            <summary>Subscribe to updates to resource comments/threads. Optionally specify resource ID string to only receive updates regarding comments for those resources</summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateUserProjectsUpdatedSubscription"/></remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateProjectModelsUpdatedSubscription(System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>Subscribe to changes to a project's models. Optionally specify <paramref name="modelIds"/> to track</summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateUserProjectsUpdatedSubscription"/></remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateProjectUpdatedSubscription(System.String)">
+            <summary>Track updates to a specific project</summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateUserProjectsUpdatedSubscription"/></remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateProjectVersionsUpdatedSubscription(System.String)">
+            <summary>Subscribe to changes to a project's versions.</summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.Resources.SubscriptionResource.CreateUserProjectsUpdatedSubscription"/></remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.SubscribeTo``1(GraphQL.GraphQLRequest,System.Action{System.Object,``0})"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.Get(System.String,System.String,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="versionId"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.GetVersions(System.String,System.String,System.Int32,System.String,Speckle.Sdk.Api.GraphQL.Inputs.ModelVersionsFilter,System.Threading.CancellationToken)">
+            <param name="projectId"></param>
+            <param name="modelId"></param>
+            <param name="limit">Max number of versions to fetch</param>
+            <param name="cursor">Optional cursor for pagination</param>
+            <param name="filter">Optional filter</param>
+            <param name="cancellationToken"></param>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.Create(Speckle.Sdk.Api.GraphQL.Inputs.CreateVersionInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns>The created <see cref="T:Speckle.Sdk.Api.GraphQL.Models.Version"/></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.Update(Speckle.Sdk.Api.GraphQL.Inputs.UpdateVersionInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.MoveToModel(Speckle.Sdk.Api.GraphQL.Inputs.MoveVersionsInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.Delete(Speckle.Sdk.Api.GraphQL.Inputs.DeleteVersionsInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.GraphQL.Resources.VersionResource.Received(Speckle.Sdk.Api.GraphQL.Inputs.MarkReceivedVersionInput,System.Threading.CancellationToken)">
+            <param name="input"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.ISpeckleGraphQLClient.ExecuteGraphQLRequest``1(GraphQL.GraphQLRequest,System.Threading.CancellationToken)"/>
+        </member>
+        <member name="T:Speckle.Sdk.Api.GraphQL.StreamRoles">
+            <summary>
+            These are the default roles used by the server
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.Operations">
+            <summary>
+            Exposes several key methods for interacting with Speckle.Sdk.
+            <para>Serialize/Deserialize</para>
+            <para>Push/Pull (methods to serialize and send data to one or more servers)</para>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.#ctor(Microsoft.Extensions.Logging.ILogger{Speckle.Sdk.Api.Operations},Speckle.Sdk.Logging.ISdkActivityFactory,Speckle.Sdk.Logging.ISdkMetricsFactory,Speckle.Sdk.Serialisation.V2.ISerializeProcessFactory)">
+            <summary>
+            Exposes several key methods for interacting with Speckle.Sdk.
+            <para>Serialize/Deserialize</para>
+            <para>Push/Pull (methods to serialize and send data to one or more servers)</para>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Receive2(System.Uri,System.String,System.String,System.String,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Receives a Object to the provided URL and Caches the results
+            </summary>
+            <remarks/>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="objectId"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Receive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Receives an object (and all its sub-children) from the two provided <see cref="T:Speckle.Sdk.Transports.ITransport"/>s.
+            <br/>
+            Will first try and find objects using the <paramref name="localTransport"/> (the faster transport)
+            If not found, will attempt to copy the objects from the <paramref name="remoteTransport"/> into the <paramref name="localTransport"/> before deserialization
+            </summary>
+            <remarks>
+            If Transports are properly implemented, there is no hard distinction between what is a local or remote transport; it's still just an <see cref="T:Speckle.Sdk.Transports.ITransport"/>.
+            <br/>So, for example, if you want to receive an object without actually writing it first to a local transport, you can just pass a <see cref="T:Speckle.Sdk.Transports.ServerTransport"/> as a local transport.
+            <br/>This is not recommended, but shows what you can do. Another tidbit: the local transport does not need to be disk-bound; it can easily be an in <see cref="T:Speckle.Sdk.Transports.MemoryTransport"/>. In memory transports are the fastest ones, but they're of limited use for larger datasets
+            </remarks>
+            <param name="objectId">The id of the object to receive</param>
+            <param name="remoteTransport">The remote transport (slower). If <see langword="null"/>, will assume all objects are present in <paramref name="localTransport"/></param>
+            <param name="localTransport">The local transport (faster). If <see langword="null"/>, will use a default <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> cache</param>
+            <param name="onProgressAction">Action invoked on progress iterations</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Failed to retrieve objects from the provided transport(s)</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException">Deserialization of the requested object(s) failed</exception>
+            <exception cref="T:System.OperationCanceledException"><paramref name="cancellationToken"/> requested cancel</exception>
+            <returns>The requested Speckle Object</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.ReceiveImpl(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <inheritdoc cref="M:Speckle.Sdk.Api.Operations.Receive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.LocalReceive(System.String,Speckle.Sdk.Transports.ITransport)">
+            <summary>
+            Try and get the object from the local transport. If it's there, we assume all its children are there
+            This assumption is hard-wired into the <see cref="T:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer"/>
+            </summary>
+            <param name="objectId"></param>
+            <param name="localTransport"></param>
+            <returns></returns>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException"></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.RemoteReceive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport)">
+            <summary>
+            Copies the requested object and all its children from <paramref name="remoteTransport"/> to <paramref name="localTransport"/>
+            </summary>
+            <seealso cref="M:Speckle.Sdk.Transports.ITransport.CopyObjectAndChildren(System.String,Speckle.Sdk.Transports.ITransport)"/>
+            <param name="objectId"></param>
+            <param name="remoteTransport"></param>
+            <param name="localTransport"></param>
+            <returns></returns>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Remote transport was not specified</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Send2(System.Uri,System.String,System.String,Speckle.Sdk.Models.Base,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided URL and Caches the results
+            </summary>
+            <remarks/>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="value"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.IServerTransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transport"/> and (optionally) the default local cache
+            </summary>
+            <remarks/>
+            <inheritdoc cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            <param name="useDefaultCache">When <see langword="true"/>, an additional <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> will be included</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="transport"/> or <paramref name="value"/> was <see langword="null"/></exception>
+            <example><code>
+            using ServerTransport destination = new(account, streamId);
+            var (objectId, references) = await Send(mySpeckleObject, destination, true);
+            </code></example>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.ITransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transport"/> and (optionally) the default local cache
+            </summary>
+            <remarks/>
+            <inheritdoc cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            <param name="useDefaultCache">When <see langword="true"/>, an additional <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> will be included</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="transport"/> or <paramref name="value"/> was <see langword="null"/></exception>
+            <example><code>
+            using ServerTransport destination = new(account, streamId);
+            var (objectId, references) = await Send(mySpeckleObject, destination, true);
+            </code></example>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transports"/>
+            </summary>
+            <remarks>Only sends to the specified transports, the default local cache won't be used unless you also pass it in</remarks>
+            <returns>The id (hash) of the object sent</returns>
+            <param name="value">The object you want to send</param>
+            <param name="transports">Where you want to send them</param>
+            <param name="onProgressAction">Action that gets triggered on every progress tick (keeps track of all transports)</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="value"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">One or more <paramref name="transports"/> failed to send</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.SerializerSend(Speckle.Sdk.Models.Base,Speckle.Sdk.Serialisation.SpeckleObjectSerializer,System.Threading.CancellationToken)">
+            <returns><inheritdoc cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.Serialize(Speckle.Sdk.Models.Base,System.Threading.CancellationToken)">
+            <summary>
+            Serializes a given object.
+            </summary>
+            <remarks>
+            If you want to save and persist an object to Speckle Transport or Server,
+            please use any of the "Send" methods.
+            <see cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.ITransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            </remarks>
+            <param name="value">The object to serialise</param>
+            <param name="cancellationToken"></param>
+            <returns>A json string representation of the object.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.DeserializeAsync(System.String,System.Threading.CancellationToken)">
+            <remarks>
+            Note: if you want to pull an object from a Speckle Transport or Server,
+            please use
+            <see cref="M:Speckle.Sdk.Api.Operations.Receive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            </remarks>
+            <param name="value">The json string representation of a speckle object that you want to deserialize</param>
+            <param name="cancellationToken"></param>
+            <returns><inheritdoc cref="M:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.DeserializeAsync(System.String)"/></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="value"/> was null</exception>
+            <exception cref="T:Speckle.Newtonsoft.Json.JsonReaderException"><paramref name="value"/> was not valid JSON</exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException"><paramref name="value"/> cannot be deserialised to type <see cref="T:Speckle.Sdk.Models.Base"/></exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException"><paramref name="value"/> contains closure references (see Remarks)</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.Operations.DeserializeActivity(System.String,Speckle.Sdk.Serialisation.SpeckleObjectDeserializer)">
+            <inheritdoc cref="M:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.DeserializeAsync(System.String)"/>
+        </member>
+        <member name="T:Speckle.Sdk.Api.ServerLimits">
+            <summary>
+            Defines the limits for specific API calls on the Speckle Server.
+            These are magic numbers! Should be aligned with server always.
+            </summary>
+            <remarks>
+            ⚠️ Not all limits are reflected here!
+            </remarks>
+        </member>
+        <member name="F:Speckle.Sdk.Api.ServerLimits.DEFAULT_PAGINATION_REQUEST">
+            <summary>the default `limit` argument value for paginated requests</summary>
+        </member>
+        <member name="T:Speckle.Sdk.Api.IOperations">
+            <summary>
+            Exposes several key methods for interacting with Speckle.Sdk.
+            <para>Serialize/Deserialize</para>
+            <para>Push/Pull (methods to serialize and send data to one or more servers)</para>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Receive2(System.Uri,System.String,System.String,System.String,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Receives a Object to the provided URL and Caches the results
+            </summary>
+            <remarks/>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="objectId"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Receive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Receives an object (and all its sub-children) from the two provided <see cref="T:Speckle.Sdk.Transports.ITransport"/>s.
+            <br/>
+            Will first try and find objects using the <paramref name="localTransport"/> (the faster transport)
+            If not found, will attempt to copy the objects from the <paramref name="remoteTransport"/> into the <paramref name="localTransport"/> before deserialization
+            </summary>
+            <remarks>
+            If Transports are properly implemented, there is no hard distinction between what is a local or remote transport; it's still just an <see cref="T:Speckle.Sdk.Transports.ITransport"/>.
+            <br/>So, for example, if you want to receive an object without actually writing it first to a local transport, you can just pass a <see cref="T:Speckle.Sdk.Transports.ServerTransport"/> as a local transport.
+            <br/>This is not recommended, but shows what you can do. Another tidbit: the local transport does not need to be disk-bound; it can easily be an in <see cref="T:Speckle.Sdk.Transports.MemoryTransport"/>. In memory transports are the fastest ones, but they're of limited use for larger datasets
+            </remarks>
+            <param name="objectId">The id of the object to receive</param>
+            <param name="remoteTransport">The remote transport (slower). If <see langword="null"/>, will assume all objects are present in <paramref name="localTransport"/></param>
+            <param name="localTransport">The local transport (faster). If <see langword="null"/>, will use a default <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> cache</param>
+            <param name="onProgressAction">Action invoked on progress iterations</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Failed to retrieve objects from the provided transport(s)</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException">Deserialization of the requested object(s) failed</exception>
+            <exception cref="T:System.OperationCanceledException"><paramref name="cancellationToken"/> requested cancel</exception>
+            <returns>The requested Speckle Object</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Send2(System.Uri,System.String,System.String,Speckle.Sdk.Models.Base,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided URL and Caches the results
+            </summary>
+            <remarks/>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="value"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.IServerTransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transport"/> and (optionally) the default local cache
+            </summary>
+            <remarks/>
+            <inheritdoc cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            <param name="useDefaultCache">When <see langword="true"/>, an additional <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> will be included</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="transport"/> or <paramref name="value"/> was <see langword="null"/></exception>
+            <example><code>
+            using ServerTransport destination = new(account, streamId);
+            var (objectId, references) = await Send(mySpeckleObject, destination, true);
+            </code></example>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.ITransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transport"/> and (optionally) the default local cache
+            </summary>
+            <remarks/>
+            <inheritdoc cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            <param name="useDefaultCache">When <see langword="true"/>, an additional <see cref="T:Speckle.Sdk.Transports.SQLiteTransport"/> will be included</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="transport"/> or <paramref name="value"/> was <see langword="null"/></exception>
+            <example><code>
+            using ServerTransport destination = new(account, streamId);
+            var (objectId, references) = await Send(mySpeckleObject, destination, true);
+            </code></example>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Send(Speckle.Sdk.Models.Base,System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)">
+            <summary>
+            Sends a Speckle Object to the provided <paramref name="transports"/>
+            </summary>
+            <remarks>Only sends to the specified transports, the default local cache won't be used unless you also pass it in</remarks>
+            <returns>The id (hash) of the object sent</returns>
+            <param name="value">The object you want to send</param>
+            <param name="transports">Where you want to send them</param>
+            <param name="onProgressAction">Action that gets triggered on every progress tick (keeps track of all transports)</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentException">No transports were specified</exception>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="value"/> was <see langword="null"/></exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException">Serialization or Send operation was unsuccessful</exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">One or more <paramref name="transports"/> failed to send</exception>
+            <exception cref="T:System.OperationCanceledException">The <paramref name="cancellationToken"/> requested cancellation</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.Serialize(Speckle.Sdk.Models.Base,System.Threading.CancellationToken)">
+            <summary>
+            Serializes a given object.
+            </summary>
+            <remarks>
+            If you want to save and persist an object to Speckle Transport or Server,
+            please use any of the "Send" methods.
+            <see cref="M:Speckle.Sdk.Api.Operations.Send(Speckle.Sdk.Models.Base,Speckle.Sdk.Transports.ITransport,System.Boolean,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            </remarks>
+            <param name="value">The object to serialise</param>
+            <param name="cancellationToken"></param>
+            <returns>A json string representation of the object.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Api.IOperations.DeserializeAsync(System.String,System.Threading.CancellationToken)">
+            <remarks>
+            Note: if you want to pull an object from a Speckle Transport or Server,
+            please use
+            <see cref="M:Speckle.Sdk.Api.Operations.Receive(System.String,Speckle.Sdk.Transports.ITransport,Speckle.Sdk.Transports.ITransport,System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Threading.CancellationToken)"/>
+            </remarks>
+            <param name="value">The json string representation of a speckle object that you want to deserialize</param>
+            <param name="cancellationToken"></param>
+            <returns><inheritdoc cref="M:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.DeserializeAsync(System.String)"/></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="value"/> was null</exception>
+            <exception cref="T:Speckle.Newtonsoft.Json.JsonReaderException"><paramref name="value"/> was not valid JSON</exception>
+            <exception cref="T:Speckle.Sdk.SpeckleException"><paramref name="value"/> cannot be deserialised to type <see cref="T:Speckle.Sdk.Models.Base"/></exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException"><paramref name="value"/> contains closure references (see Remarks)</exception>
+        </member>
+        <member name="T:Speckle.Sdk.Common.Exceptions.ConversionException">
+            <summary>
+            Exception thrown when conversion of an object was not successful
+            </summary>
+            <remarks>
+            Ideally this exception contains a meaningful message.
+            This exception can be used for both ToSpeckle and ToNative conversion
+            </remarks>
+        </member>
+        <member name="T:Speckle.Sdk.Common.Exceptions.ConversionNotSupportedException">
+            <summary>
+            Exception used when an object could not be converted, because we don't support a specific conversion.
+            </summary>
+            <remarks>
+            This Exception should be thrown only when a top-level converter does not exist.</remarks>
+            <example>
+            It should <b>NOT</b> be used for:
+            <ul>
+             <li> objects who's <see cref="T:System.Type"/> we don't support (e.g. <c>"Walls are not supported"</c>)</li>
+             <li> objects with a property whose value we don't support (e.g. <c>"Beams with shape type of Circular are not supported"</c>)</li>
+             <li> complex object requirements (e.g. <c>"We don't support walls with zero width and no displayValue"</c>)</li>
+             <li> Invalid Speckle Objects (e.g. <c>"We don't support walls with null lines"</c>)</li>
+             <li> Objects that we have already converted, and therefore now skip (e.g. <c>"A Wall with the same name was already converted"</c>)</li>
+             <li> Reactive error handling (e.g. "Failed to convert wall, I guess it wasn't supported")</li>
+            </ul>
+            </example>
+        </member>
+        <member name="T:Speckle.Sdk.Common.Exceptions.UnitNotSupportedException">
+            <summary>
+            Exception thrown when a unit is encountered that is not supported, either by Speckle or the host app.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Common.Exceptions.ValidationException">
+            <summary>
+            Exception thrown when conversion cannot be performed
+            </summary>
+            <remarks>Ideally, this exception should be thrown when we can pre-emptively check for invalid data that is known to cause an exception under normal circumstances</remarks>
+            <example>
+            It can be used for:
+            <ul>
+             <li> Invalid Speckle Objects (e.g. <c>"We don't support walls with null lines"</c>)</li>
+             <li> objects with a property whose value we don't support (e.g. <c>"Beams with shape type of Circular are not supported"</c>)</li>
+             <li> complex object requirements (e.g. <c>"We don't support walls with zero width and no displayValue"</c>)</li>
+            </ul>
+            It should <b>NOT</b> be used for:
+            <ul>
+             <li> Objects we have no top-level converter for</li>
+             <li> Objects that we have already converted, and therefore now skip (e.g. <c>"A Wall with the same name was already converted"</c>)</li>
+             <li> Reactive error handling (e.g. "Failed to convert wall, I guess it wasn't supported")</li>
+            </ul>
+            </example>
+        </member>
+        <member name="T:Speckle.Sdk.Common.HashCode">
+            <summary>
+            A hash code used to help with implementing <see cref="M:System.Object.GetHashCode"/>.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Speckle.Sdk.Common.HashCode"/> struct.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.op_Implicit(Speckle.Sdk.Common.HashCode)~System.Int32">
+            <summary>
+            Performs an implicit conversion from <see cref="T:Speckle.Sdk.Common.HashCode"/> to <see cref="T:System.Int32"/>.
+            </summary>
+            <param name="hashCode">The hash code.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.op_Equality(Speckle.Sdk.Common.HashCode,Speckle.Sdk.Common.HashCode)">
+            <summary>
+            Implements the operator ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.op_Inequality(Speckle.Sdk.Common.HashCode,Speckle.Sdk.Common.HashCode)">
+            <summary>
+            Implements the operator !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.Of``1(``0)">
+            <summary>
+            Takes the hash code of the specified item.
+            </summary>
+            <typeparam name="T">The type of the item.</typeparam>
+            <param name="item">The item.</param>
+            <returns>The new hash code.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.OfEach``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Takes the hash code of the specified items.
+            </summary>
+            <typeparam name="T">The type of the items.</typeparam>
+            <param name="items">The collection.</param>
+            <returns>The new hash code.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.And``1(``0)">
+            <summary>
+            Adds the hash code of the specified item.
+            </summary>
+            <typeparam name="T">The type of the item.</typeparam>
+            <param name="item">The item.</param>
+            <returns>The new hash code.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.AndEach``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Adds the hash code of the specified items in the collection.
+            </summary>
+            <typeparam name="T">The type of the items.</typeparam>
+            <param name="items">The collection.</param>
+            <returns>The new hash code.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.Equals(Speckle.Sdk.Common.HashCode)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speckle.Sdk.Common.HashCode.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.ValueTask{``0},System.String)">
+            <exception cref="T:System.ArgumentNullException">Thrown when the awaited <paramref name="task"/> returns <see langword="null"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.ValueTask{System.Nullable{``0}},System.String)">
+            <inheritdoc cref="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.ValueTask{System.Nullable{``0}},System.String)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.Task{``0},System.String)">
+            <inheritdoc cref="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.ValueTask{System.Nullable{``0}},System.String)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.Task{System.Nullable{``0}},System.String)">
+            <inheritdoc cref="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Threading.Tasks.ValueTask{System.Nullable{``0}},System.String)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(``0,System.String)">
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="obj"/> is <see langword="null"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Nullable{``0},System.String)">
+            <inheritdoc cref="M:Speckle.Sdk.Common.NotNullExtensions.NotNull``1(System.Nullable{``0},System.String)"/>
+        </member>
+        <member name="F:Speckle.Sdk.Common.Units.Feet">
+            <summary>International Foot</summary>
+        </member>
+        <member name="F:Speckle.Sdk.Common.Units.USFeet">
+            <summary>US Survey foot, now not supported by Speckle, kept privately for backwards compatibility</summary>
+        </member>
+        <member name="M:Speckle.Sdk.Common.Units.IsUnitSupported(System.String)">
+            <param name="unit"></param>
+            <returns><see langword="true"/> if <paramref name="unit"/> is a recognised/supported unit string, otherwise <see langword="false"/></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.Units.GetConversionFactor(System.String,System.String)">
+            <summary>
+            Gets the conversion factor from one unit system to another
+            </summary>
+            <param name="from">Semantic unit string for the units to convert from</param>
+            <param name="to">Semantic unit string for the units to convert to</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">A <inheritdoc cref="M:Speckle.Sdk.Common.Units.GetUnitsFromString(System.String)"/></exception>
+            <returns>The scaling factor to convert from the <paramref name="from"/> units to the <paramref name="to"/> units, or 1 if either unit param is null or none</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.Units.GetUnitsFromString(System.String)">
+            <summary>
+            Given <paramref name="unit"/>, maps several friendly unit aliases to a a semantic unit string
+            </summary>
+            <param name="unit"></param>
+            <returns>The semantic unit string, <see langword="null"/> if <paramref name="unit"/> is <see langword="null"/></returns>
+            <exception cref="T:System.ArgumentOutOfRangeException">Unit string is not a supported unit (see <see cref="M:Speckle.Sdk.Common.Units.IsUnitSupported(System.String)"/>)</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Common.Units.GetEncodingFromUnit(System.String)">
+            <summary>
+            Maps semantic unit strings to a numeric encoding
+            </summary>
+            <param name="unit"></param>
+            <remarks>non-recognised unit encodings will be silently mapped to <c>0</c></remarks>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Common.Units.GetUnitFromEncoding(System.Double)">
+            <summary>
+            Maps a numeric encoding to the semantic unit string
+            </summary>
+            <param name="unit">numeric encoded unit</param>
+            <remarks>non-recognised unit encodings will be silently mapped to <see cref="F:Speckle.Sdk.Common.Units.None"/></remarks>
+            <returns>Semantic unit string</returns>
+        </member>
+        <member name="P:Speckle.Sdk.Credentials.Account.id">
+            <remarks>
+            The account id is unique to user and server url.
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">Account object invalid: missing required info</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.Account.GetLocalIdentifier">
+            <summary>
+            Retrieves the local identifier for the current user.
+            </summary>
+            <returns>
+            Returns a <see cref="T:System.Uri"/> object representing the local identifier for the current user.
+            The local identifier is created by appending the user ID as a query parameter to the server URL.
+            </returns>
+            <remarks>
+            Notice that the generated Uri is not intended to be used as a functioning Uri, but rather as a
+            unique identifier for a specific account in a local environment. The format of the Uri, containing a query parameter with the user ID,
+            serves this specific purpose. Therefore, it should not be used for forming network requests or
+            expecting it to lead to an actual webpage. The primary intent of this Uri is for unique identification in a Uri format.
+            </remarks>
+            <example>
+              This sample shows how to call the GetLocalIdentifier method.
+              <code>
+                Uri localIdentifier = GetLocalIdentifier();
+                Console.WriteLine(localIdentifier);
+              </code>
+              For a fictional `User ID: 123` and `Server: https://speckle.xyz`, the output might look like this:
+              <code>
+                https://speckle.xyz?id=123
+              </code>
+            </example>
+        </member>
+        <member name="T:Speckle.Sdk.Credentials.IAccountManager">
+            <summary>
+            Manage accounts locally for desktop applications.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetServerInfo(System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Gets the basic information about a server.
+            </summary>
+            <param name="server">Server Information</param>
+            <returns></returns>
+            <exception cref="T:GraphQL.Client.Http.GraphQLHttpRequestException">Request failed on the HTTP layer (received a non-successful response code)</exception>
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetUserInfo(System.String,System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Gets basic user information given a token and a server.
+            </summary>
+            <param name="token"></param>
+            <param name="server">Server URL</param>
+            <returns></returns>
+            <exception cref="T:GraphQL.Client.Http.GraphQLHttpRequestException">Request failed on the HTTP layer (received a non-successful response code)</exception>
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetDefaultServerUrl">
+            <summary>
+            The Default Server URL for authentication, can be overridden by placing a file with the alternatrive url in the Speckle folder or with an ENV_VAR
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetAccount(System.String)">
+            <param name="id">The Id of the account to fetch</param>
+            <returns></returns>
+            <exception cref="T:Speckle.Sdk.Credentials.SpeckleAccountManagerException">Account with <paramref name="id"/> was not found</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.UpgradeAccount(System.String)">
+            <summary>
+            Upgrades an account from the account.serverInfo.movedFrom account to the account.serverInfo.movedTo account
+            </summary>
+            <param name="id">Id of the account to upgrade</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetAccounts(System.Uri)">
+            <summary>
+            Returns all unique accounts matching the serverUrl provided. If an account exists on more than one server,
+            typically because it has been migrated, then only the upgraded account (and therefore server) are returned.
+            Accounts are deemed to be the same when the Account.Id matches.
+            </summary>
+            <param name="serverUrl">Uri for server.</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetDefaultAccount">
+            <summary>
+            Gets this environment's default account if any. If there is no default, the first found will be returned and set as default.
+            </summary>
+            <returns>The default account or null.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetAccounts">
+            <summary>
+            Gets all the accounts present in this environment.
+            </summary>
+            <remarks>This function does have potential side effects. Any invalid accounts found while enumerating will be removed</remarks>
+            <returns>Un-enumerated enumerable of accounts</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.UpdateAccounts(System.Threading.CancellationToken,System.String)">
+            <summary>
+            Refetches user and server info for each account
+            </summary>
+            <param name="app"> It is defaultAppId in the server. By default it is "sca" to not break existing parts that this function involves.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.RemoveAccount(System.String)">
+            <summary>
+            Removes an account
+            </summary>
+            <param name="id">ID of the account to remove</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.ChangeDefaultAccount(System.String)">
+            <summary>
+            Changes the default account
+            </summary>
+            <param name="id"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetLocalIdentifierForAccount(Speckle.Sdk.Credentials.Account)">
+            <summary>
+            Retrieves the local identifier for the specified account.
+            </summary>
+            <param name="account">The account for which to retrieve the local identifier.</param>
+            <returns>The local identifier for the specified account in the form of "SERVER_URL?u=USER_ID".</returns>
+            <remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Credentials.Account.GetLocalIdentifier"/>
+            </remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.GetAccountForLocalIdentifier(System.Uri)">
+            <summary>
+            Gets the account that corresponds to the given local identifier.
+            </summary>
+            <param name="localIdentifier">The local identifier of the account.</param>
+            <returns>The account that matches the local identifier, or null if no match is found.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.IAccountManager.AddAccount(System.Uri)">
+            <summary>
+            Adds an account by propting the user to log in via a web flow
+            </summary>
+            <param name="server">Server to use to add the account, if not provied the default Server will be used</param>
+            <returns></returns>
+        </member>
+        <member name="T:Speckle.Sdk.Credentials.AccountManager">
+            <summary>
+            Manage accounts locally for desktop applications.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.#ctor(Speckle.Sdk.ISpeckleApplication,Microsoft.Extensions.Logging.ILogger{Speckle.Sdk.Credentials.AccountManager},Speckle.Sdk.Helpers.ISpeckleHttp,Speckle.Sdk.SQLite.ISqLiteJsonCacheManagerFactory)">
+            <summary>
+            Manage accounts locally for desktop applications.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetServerInfo(System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Gets the basic information about a server.
+            </summary>
+            <param name="server">Server Information</param>
+            <returns></returns>
+            <exception cref="T:GraphQL.Client.Http.GraphQLHttpRequestException">Request failed on the HTTP layer (received a non-successful response code)</exception>
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetUserInfo(System.String,System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Gets basic user information given a token and a server.
+            </summary>
+            <param name="token"></param>
+            <param name="server">Server URL</param>
+            <returns></returns>
+            <exception cref="T:GraphQL.Client.Http.GraphQLHttpRequestException">Request failed on the HTTP layer (received a non-successful response code)</exception>
+            <exception cref="T:System.AggregateException"><inheritdoc cref="M:Speckle.Sdk.Api.GraphQL.GraphQLErrorHandler.EnsureGraphQLSuccess(GraphQL.IGraphQLResponse)"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetUserServerInfo(System.String,System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Gets basic user and server information given a token and a server.
+            </summary>
+            <param name="token"></param>
+            <param name="server">Server URL</param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetDefaultServerUrl">
+            <summary>
+            The Default Server URL for authentication, can be overridden by placing a file with the alternatrive url in the Speckle folder or with an ENV_VAR
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetAccount(System.String)">
+            <param name="id">The Id of the account to fetch</param>
+            <returns></returns>
+            <exception cref="T:Speckle.Sdk.Credentials.SpeckleAccountManagerException">Account with <paramref name="id"/> was not found</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.UpgradeAccount(System.String)">
+            <summary>
+            Upgrades an account from the account.serverInfo.movedFrom account to the account.serverInfo.movedTo account
+            </summary>
+            <param name="id">Id of the account to upgrade</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetAccounts(System.Uri)">
+            <summary>
+            Returns all unique accounts matching the serverUrl provided. If an account exists on more than one server,
+            typically because it has been migrated, then only the upgraded account (and therefore server) are returned.
+            Accounts are deemed to be the same when the Account.Id matches.
+            </summary>
+            <param name="serverUrl">Uri for server.</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetDefaultAccount">
+            <summary>
+            Gets this environment's default account if any. If there is no default, the first found will be returned and set as default.
+            </summary>
+            <returns>The default account or null.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetAccounts">
+            <summary>
+            Gets all the accounts present in this environment.
+            </summary>
+            <remarks>This function does have potential side effects. Any invalid accounts found while enumerating will be removed</remarks>
+            <returns>Un-enumerated enumerable of accounts</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetLocalAccounts">
+            <summary>
+            Gets the local accounts
+            These are accounts not handled by Manager and are stored in json format in a local directory
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.UpdateAccounts(System.Threading.CancellationToken,System.String)">
+            <summary>
+            Refetches user and server info for each account
+            </summary>
+            <param name="app"> It is defaultAppId in the server. By default it is "sca" to not break existing parts that this function involves.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.RefreshAndSetAccountToken(Speckle.Sdk.Credentials.Account,System.String)">
+            <summary>
+            Mutates the account with new tokens.
+            </summary>
+            <param name="account"></param>
+            <param name="app"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.RemoveAccount(System.String)">
+            <summary>
+            Removes an account
+            </summary>
+            <param name="id">ID of the account to remove</param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.ChangeDefaultAccount(System.String)">
+            <summary>
+            Changes the default account
+            </summary>
+            <param name="id"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetLocalIdentifierForAccount(Speckle.Sdk.Credentials.Account)">
+            <summary>
+            Retrieves the local identifier for the specified account.
+            </summary>
+            <param name="account">The account for which to retrieve the local identifier.</param>
+            <returns>The local identifier for the specified account in the form of "SERVER_URL?u=USER_ID".</returns>
+            <remarks>
+            <inheritdoc cref="M:Speckle.Sdk.Credentials.Account.GetLocalIdentifier"/>
+            </remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.GetAccountForLocalIdentifier(System.Uri)">
+            <summary>
+            Gets the account that corresponds to the given local identifier.
+            </summary>
+            <param name="localIdentifier">The local identifier of the account.</param>
+            <returns>The account that matches the local identifier, or null if no match is found.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.AddAccount(System.Uri)">
+            <summary>
+            Adds an account by propting the user to log in via a web flow
+            </summary>
+            <param name="server">Server to use to add the account, if not provied the default Server will be used</param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Credentials.AccountManager.IsFrontend2Server(System.Uri)">
+            <summary>
+            Sends a simple get request to the <paramref name="server"/>, and checks the response headers for a <c>"x-speckle-frontend-2"</c> <see cref="T:System.Boolean"/> value
+            </summary>
+            <param name="server">Server endpoint to get header</param>
+            <returns><see langword="true"/> if response contains FE2 header and the value was <see langword="true"/></returns>
+            <exception cref="T:Speckle.Sdk.SpeckleException">response contained FE2 header, but the value was <see langword="null"/>, empty, or not parseable to a <see cref="T:System.Boolean"/></exception>
+            <exception cref="T:System.Net.Http.HttpRequestException">Request to <paramref name="server"/> failed to send or response was not successful</exception>
+        </member>
+        <member name="M:Speckle.Sdk.ExceptionHelpers.IsFatal(System.Exception)">
+            <summary>
+            Helper function for catch blocks to avoid catching and handling/wrapping of some critical exception types that are unlikely to be truly handleable
+            </summary>
+            <remarks>
+            We should aim to always catch specific exception types, and have all functions document the types they may throw.
+            However, this is not always achievable.
+            e.g. when dealing with legacy code, some third-party APIs, or in cases where we want to prevent a host app crash.
+            In these cases, we often want to catch all exceptions, and opt out only of the ones that definitely shouldn't be handled
+            </remarks>
+            <example>
+            <code>
+            try
+            {
+                SomethingSketchy();
+            }
+            catch (Exception ex) when (!IsFatal(ex))
+            {
+               throw new SpeckleException("Failed to do something", ex);
+            }
+            </code>
+            </example>
+            <param name="ex"></param>
+            <returns><see langword="true"/> for types that are unlikely to ever be recoverable</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Helpers.Crypt.Sha256(System.String,System.String,System.Int32)">
+            <param name="input">the value to hash</param>
+            <param name="format"><c>"x2"</c> for lower case, <c>"X2"</c> for uppercase.</param>
+            <param name="length">Desired length of the returned string</param>
+            <returns>the hash string</returns>
+            <exception cref="T:System.FormatException"><paramref name="format"/> is not a recognised numeric format</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><inheritdoc cref="M:System.Text.StringBuilder.ToString(System.Int32,System.Int32)"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Helpers.Crypt.Md5(System.String,System.String,System.Int32)">
+            <inheritdoc cref="M:Speckle.Sdk.Helpers.Crypt.Sha256(System.String,System.String,System.Int32)"/>
+            <remarks>MD5 is a broken cryptographic algorithm and should be used subject to review see CA5351</remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Helpers.SpeckleHttp.HttpPing(System.Uri)">
+            <summary>
+            Sends a <c>GET</c> request to the provided <paramref name="uri"/>
+            </summary>
+            <param name="uri">The URI that should be pinged</param>
+            <exception cref="T:System.Net.Http.HttpRequestException">Request to <paramref name="uri"/> failed</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Helpers.ISpeckleHttp.HttpPing(System.Uri)">
+            <summary>
+            Sends a <c>GET</c> request to the provided <paramref name="uri"/>
+            </summary>
+            <param name="uri">The URI that should be pinged</param>
+            <exception cref="T:System.Net.Http.HttpRequestException">Request to <paramref name="uri"/> failed</exception>
+        </member>
+        <member name="T:Speckle.Sdk.Host.SchemaMainParamAttribute">
+            <summary>
+            Used to indicate which is the main input parameter of the schema builder component. Schema info will be attached to this object.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Host.SchemaIgnoreAttribute">
+            <summary>
+            Used to ignore properties from expand objects etc
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Host.HostApplications">
+            <summary>
+            List of Host Applications - their slugs should match our ghost tags and ci/cd slugs
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Host.HostApplications.GetHostAppFromString(System.String)">
+            <summary>
+            Gets a HostApplication form a string. It could be the versioned name or a string coming from a process running.
+            </summary>
+            <param name="appname">String with the name of the app</param>
+            <returns></returns>
+        </member>
+        <member name="T:Speckle.Sdk.Logging.SpecklePathProvider">
+            <summary>
+            Helper class dedicated for Speckle specific Path operations.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Logging.SpecklePathProvider.InstallApplicationDataPath">
+            <summary>
+            Get the installation path.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Logging.SpecklePathProvider.UserSpeckleFolderPath">
+            <summary>
+            Get the folder where the user's Speckle data should be stored.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Logging.SpecklePathProvider.AccountsFolderPath">
+            <summary>
+            Get the folder where the Speckle accounts data should be stored.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Logging.SpecklePathProvider.UserApplicationDataPath">
+            <summary>
+            Get the platform specific user configuration folder path.<br/>
+            will be the <see cref="F:System.Environment.SpecialFolder.ApplicationData"/> path e.g.:
+            In cases such as linux servers where the above path is not permissive, we will fall back to <see cref="F:System.Environment.SpecialFolder.UserProfile"/>
+            </summary>
+            <remarks>
+            <see cref="F:System.Environment.SpecialFolder.ApplicationData"/> path usually maps to
+            <ul>
+              <li>win: <c>%appdata%/</c></li>
+              <li>MacOS: <c>~/.config/</c></li>
+              <li>Linux: <c>~/.config/</c></li>
+            </ul>
+            </remarks>
+            <exception cref="T:System.PlatformNotSupportedException">Both <see cref="F:System.Environment.SpecialFolder.ApplicationData"/> and <see cref="F:System.Environment.SpecialFolder.UserProfile"/> paths are inaccessible</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Logging.SpecklePathProvider.BlobStoragePath(System.String)">
+            <summary>
+            Get the folder where the user's Speckle blobs should be stored.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.DetachPropertyAttribute">
+            <summary>
+            <para>Flags an object's property as being detachable.</para>
+            <para>If set to true the default serialiser will persist it separately, and add a reference to the property's value in the original object.</para>
+            <para>Only applies to properties of types derived from the Base class.</para>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DetachPropertyAttribute.#ctor(System.Boolean)">
+            <summary>
+            <para>Flags an object's property as being detachable.</para>
+            <para>If set to true the default serialiser will persist it separately, and add a reference to the property's value in the original object.</para>
+            <para>Only applies to properties of types derived from the Base class.</para>
+            </summary>
+            <param name="detachable">Whether to detach the property or not.</param>
+        </member>
+        <member name="T:Speckle.Sdk.Models.ChunkableAttribute">
+            <summary>
+            Flags a list or array as splittable into chunks during serialisation. These chunks will be recomposed on deserialisation into the original list. Note: this attribute should be used in conjunction with <see cref="T:Speckle.Sdk.Models.DetachPropertyAttribute"/>.
+            <para>Use this attribute on properties that can become very long and are not worth detaching into individual elements.</para>
+            <para>Objects per chunk: for simple types, like numbers, use a high value (>10000); for other objects, use a more conservative number depending on their serialised size.</para>
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Base">
+            <summary>
+            Base class for all Speckle object definitions. Provides unified hashing, type extraction and serialisation.
+            <para>When developing a speckle kit, use this class as a parent class.</para>
+            <para><b>Dynamic properties naming conventions:</b></para>
+            <para>👉 "__" at the start of a property means it will be ignored, both for hashing and serialisation (e.g., "__ignoreMe").</para>
+            <para>👉 "@" at the start of a property name means it will be detached (when serialised with a transport) (e.g.((dynamic)obj)["@meshEquivalent"] = ...) .</para>
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Base.id">
+            <summary>
+            A speckle object's id is an unique hash based on its properties. <b>NOTE: this field will be null unless the object was deserialised from a source. Use the <see cref="M:Speckle.Sdk.Models.Base.GetId(System.Boolean)"/> function to get it.</b>
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Base.applicationId">
+            <summary>
+            Secondary, ideally host application driven, object identifier.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Base.speckle_type">
+            <summary>
+            Holds the type information of this speckle object, derived automatically
+            from its assembly name and inheritance.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Base.GetId(System.Boolean)">
+            <summary>
+            Calculates the id (a unique hash) of this object.
+            </summary>
+            <remarks>
+            This method fully serialize the object and any referenced objects. This has a tangible cost and should be avoided.<br/>
+            Objects retrieved from a <see cref="T:Speckle.Sdk.Transports.ITransport"/> already have a <see cref="P:Speckle.Sdk.Models.Base.id"/> property populated<br/>
+            The hash of a decomposed object differs from the hash of a non-decomposed object.
+            </remarks>
+            <param name="decompose">If <see langword="true"/>, will decompose the object in the process of hashing.</param>
+            <returns>the resulting id (hash)</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Base.GetTotalChildrenCount">
+            <summary>
+            Attempts to count the total number of detachable objects.
+            </summary>
+            <returns>The total count of the detachable children + 1 (itself).</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Base.ShallowCopy">
+            <summary>
+            Creates a shallow copy of the current base object.
+            This operation does NOT copy/duplicate the data inside each prop.
+            The new object's property values will be pointers to the original object's property value.
+            </summary>
+            <returns>A shallow copy of the original object.</returns>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Blob.id">
+            <summary>
+            For blobs, the id is the same as the file hash. Please note, when deserialising, the id will be set from the original hash generated on sending.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Collections.Collection">
+            <summary>
+            A simple container for organising objects within a model and preserving object hierarchy.
+            A container is defined by a human-readable <see cref="P:Speckle.Sdk.Models.Collections.Collection.name"/>, a unique <see cref="P:Speckle.Sdk.Models.Base.applicationId"/>, and its list of contained <see cref="P:Speckle.Sdk.Models.Collections.Collection.elements"/>.
+            The <see cref="P:Speckle.Sdk.Models.Collections.Collection.elements"/> can include an unrestricted number of <see cref="T:Speckle.Sdk.Models.Base"/> objects including additional nested <see cref="T:Speckle.Sdk.Models.Collections.Collection"/>s.
+            </summary>
+            <remarks>
+            A <see cref="T:Speckle.Sdk.Models.Collections.Collection"/> can be for example a Layer in Rhino/AutoCad, a collection in Blender, or a Category in Revit.
+            The location of each collection in the hierarchy of collections in a commit will be retrieved through commit traversal.
+            </remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Collections.Collection.#ctor(System.String)">
+            <summary>
+            Constructor for a basic collection.
+            </summary>
+            <param name="name">The human-readable name of this collection</param>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Collections.Collection.name">
+            <summary>
+            The human-readable name of the <see cref="T:Speckle.Sdk.Models.Collections.Collection"/>.
+            </summary>
+            <remarks>This name is not necessarily unique within a commit. Set the applicationId for a unique identifier.</remarks>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Collections.Collection.collectionType">
+            <summary>
+            The type of this collection. Note: Claire and Dim would propose we deprecate this prop. Do not use, please!
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Collections.Collection.elements">
+            <summary>
+            The elements contained in this <see cref="T:Speckle.Sdk.Models.Collections.Collection"/>.
+            </summary>
+            <remarks>
+            This can include additional nested <see cref="T:Speckle.Sdk.Models.Collections.Collection"/>s.
+            </remarks>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Collections.Layer">
+            <summary>
+            A specialized collection that represents a CAD-app layer. We expect this to grow in the future with possibly other shared props.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Collections.Layer.#ctor(System.String)">
+            <summary>
+            Constructor for a basic Layer.
+            </summary>
+            <param name="name">The human-readable name of this collection</param>
+        </member>
+        <member name="T:Speckle.Sdk.Models.DynamicBase">
+            <summary>
+            Base class implementing a bunch of nice dynamic object methods, like adding and removing props dynamically. Makes c# feel like json.
+            <para>Orginally adapted from Rick Strahl 🤘</para>
+            <para>https://weblog.west-wind.com/posts/2012/feb/08/creating-a-dynamic-extensible-c-expando-object</para>
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBase.DEFAULT_INCLUDE_MEMBERS">
+            <summary>
+            Default <see cref="T:Speckle.Sdk.Models.DynamicBaseMemberType"/> value for <see cref="M:Speckle.Sdk.Models.DynamicBase.GetMembers(Speckle.Sdk.Models.DynamicBaseMemberType)"/>
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBase._properties">
+            <summary>
+            The actual property bag, where dynamically added props are stored.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.DynamicBase.Item(System.String)">
+            <summary>
+            Sets and gets properties using the key accessor pattern.
+            </summary>
+            <example>
+            <c>myObject["superProperty"] = 42;</c>
+            </example>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DynamicBase.TryGetMember(System.Dynamic.GetMemberBinder,System.Object@)">
+            <inheritdoc />
+            <summary>
+            Gets properties via the dot syntax.
+            <para><c>((dynamic)myObject).superProperty;</c></para>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DynamicBase.TrySetMember(System.Dynamic.SetMemberBinder,System.Object)">
+            <summary>
+            Sets properties via the dot syntax.
+            <para><pre>((dynamic)myObject).superProperty = something;</pre></para>
+            </summary>
+            <param name="binder"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DynamicBase.GetDynamicMemberNames">
+            <summary>
+            Gets all of the property names on this class, dynamic or not.
+            </summary> <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DynamicBase.GetInstanceMembers">
+            <summary>
+            Gets the defined (typed) properties of this object.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.DynamicBase.GetMembers(Speckle.Sdk.Models.DynamicBaseMemberType)">
+            <summary>
+             Gets the typed and dynamic properties.
+            </summary>
+            <param name="includeMembers">Specifies which members should be included in the resulting dictionary. Can be concatenated with "|"</param>
+            <returns>A dictionary containing the key's and values of the object.</returns>
+        </member>
+        <member name="P:Speckle.Sdk.Models.DynamicBase.DynamicPropertyKeys">
+            <summary>
+            Gets the dynamically added property names only.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.IgnoreTheItemAttribute">
+            <summary>
+            This attribute is used internally to hide the this[key]{get; set;} property from inner reflection on members.
+            For more info see this discussion: https://speckle.community/t/why-do-i-keep-forgetting-base-objects-cant-use-item-as-a-dynamic-member/3246/5
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.DynamicBaseMemberType">
+            <summary>
+            Represents all different types of members that can be returned by <see cref="M:Speckle.Sdk.Models.DynamicBase.GetMembers(Speckle.Sdk.Models.DynamicBaseMemberType)"/>
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.Instance">
+            <summary>
+            The typed members of the DynamicBase object
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.Dynamic">
+            <summary>
+            The dynamically added members of the DynamicBase object
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.Obsolete">
+            <summary>
+            The typed members flagged with <see cref="T:System.ObsoleteAttribute"/> attribute.
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.SchemaIgnored">
+            <summary>
+            The typed members flagged with <see cref="T:Speckle.Sdk.Host.SchemaIgnoreAttribute"/> attribute.
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.SchemaComputed">
+            <summary>
+            The typed methods flagged with TODO:
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.InstanceAll">
+            <summary>
+            All the typed members, including ones with <see cref="T:System.ObsoleteAttribute"/> or <see cref="T:Speckle.Sdk.Host.SchemaIgnoreAttribute"/> attributes.
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Models.DynamicBaseMemberType.All">
+            <summary>
+            All the members, including dynamic and instance members flagged with <see cref="T:System.ObsoleteAttribute"/> or <see cref="T:Speckle.Sdk.Host.SchemaIgnoreAttribute"/> attributes
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Extensions.BaseExtensions.BaseRecursionBreaker">
+            <summary>
+            Provides access to each base object in the traverse function, and decides whether the traverse function should continue traversing it's children or not.
+            </summary>
+            <remarks>
+            Should return 'true' if you wish to stop the traverse behaviour, 'false' otherwise.
+            </remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.Flatten(Speckle.Sdk.Models.Base,Speckle.Sdk.Models.Extensions.BaseExtensions.BaseRecursionBreaker)">
+            <summary>
+            Traverses through the <paramref name="root"/> object and its children.
+            Only traverses through the first occurrence of a <see cref="T:Speckle.Sdk.Models.Base"/> object (to prevent infinite recursion on circular references)
+            </summary>
+            <param name="root">The root object of the tree to flatten</param>
+            <param name="recursionBreaker">Optional predicate function to determine whether to break (or continue) traversal of a <see cref="T:Speckle.Sdk.Models.Base"/> object's children.</param>
+            <returns>A flat List of <see cref="T:Speckle.Sdk.Models.Base"/> objects.</returns>
+            <seealso cref="M:Speckle.Sdk.Models.Extensions.BaseExtensions.Traverse(Speckle.Sdk.Models.Base,Speckle.Sdk.Models.Extensions.BaseExtensions.BaseRecursionBreaker)"/>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.Traverse(Speckle.Sdk.Models.Base,Speckle.Sdk.Models.Extensions.BaseExtensions.BaseRecursionBreaker)">
+            <summary>
+            Depth-first traversal of the specified <paramref name="root"/> object and all of its children as a deferred Enumerable, with a <paramref name="recursionBreaker"/> function to break the traversal.
+            </summary>
+            <param name="root">The <see cref="T:Speckle.Sdk.Models.Base"/> object to traverse.</param>
+            <param name="recursionBreaker">Predicate function to determine whether to break (or continue) traversal of a <see cref="T:Speckle.Sdk.Models.Base"/> object's children.</param>
+            <returns>Deferred Enumerable of the <see cref="T:Speckle.Sdk.Models.Base"/> objects being traversed (iterable only once).</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedProp(Speckle.Sdk.Models.Base,System.String)">
+            <summary>
+            see <see cref="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedPropName(Speckle.Sdk.Models.Base,System.String)"/>
+            </summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedPropName(Speckle.Sdk.Models.Base,System.String)"/></remarks>
+            <param name="speckleObject"></param>
+            <returns>elements</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.SetDetachedProp(Speckle.Sdk.Models.Base,System.String,System.Object)">
+            <summary>
+            see <see cref="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedPropName(Speckle.Sdk.Models.Base,System.String)"/>
+            </summary>
+            <remarks><inheritdoc cref="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedPropName(Speckle.Sdk.Models.Base,System.String)"/></remarks>
+            <param name="speckleObject"></param>
+            <param name="value">Value to set</param>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.GetDetachedPropName(Speckle.Sdk.Models.Base,System.String)">
+            <summary>
+            Returns <paramref name="propName"/> if the given <paramref name="speckleObject"/> has an instance prop of the same name
+            otherwise returns <paramref name="propName"/> with a '@' prefix for dynamic detaching.
+            </summary>
+            <remarks>
+            These functions are workarounds for '@' prefixed property names being treated as unique keys.
+            And is useful in circumstances where you want to get/set detached properties without caring about the <see cref="T:Speckle.Sdk.Models.Base"/> derived class definition
+            This behaviour, and these functions may be changed in future releases.
+            </remarks>
+            <param name="speckleObject"></param>
+            <param name="propName">the property name to check for</param>
+            <returns>detached property name</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.IsDisplayableObject(Speckle.Sdk.Models.Base)">
+            <summary>
+            Checks if an object "is displayable" i.e. has a displayValue property that is a list of base.
+            This is to mirror the selection logic of our viewer package, where any "displayable object" will become
+            a single selectable entity.
+            </summary>
+            <param name="speckleObject">The Base object to check.</param>
+            <returns>True if the object is displayable, false otherwise.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.TraverseWithPath(Speckle.Sdk.Models.Base,Speckle.Sdk.Models.Extensions.BaseExtensions.BaseRecursionBreaker)">
+            <summary>
+            A variation of the OG Traversal extension from Alan, but with tracking the object path as well.
+            </summary>
+            <param name="recursionBreaker"> Delegate condition to stop traverse.</param>
+            <returns>List of base objects with their collection path.</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.Extensions.BaseExtensions.SmellsLikeV2Data(Speckle.Sdk.Models.Base)">
+            <summary>
+            <c>totalChildrenCount</c> was a property in v2 on all Base objects,
+            it has since been removed, so is a reliable albeit hacky way to tell if a <paramref name="speckleObject"/> was from v2
+            </summary>
+            <param name="speckleObject"></param>
+            <returns>true if the <paramref name="speckleObject"/> is likley to have come from a v2 data source</returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.DataChunk">
+            <summary>
+            <para>In short, this helps you chunk big things into smaller things.</para>
+            See the following <see href="https://pics.me.me/chunky-boi-57848570.png">reference.</see>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.GraphTraversal.TraverseMember(System.Object)">
+            <summary>
+            Traverses supported Collections yielding <see cref="T:Speckle.Sdk.Models.Base"/> objects.
+            Does not traverse <see cref="T:Speckle.Sdk.Models.Base"/>, only (potentially nested) collections.
+            </summary>
+            <param name="value">The value to traverse</param>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.GraphTraversal`1.Traverse(Speckle.Sdk.Models.Base)">
+            <summary>
+            Given <paramref name="root"/> object, will recursively traverse members according to the provided traversal rules.
+            </summary>
+            <param name="root">The object to traverse members</param>
+            <returns>Lazily returns <see cref="T:Speckle.Sdk.Models.Base"/> objects found during traversal (including <paramref name="root"/>), wrapped within a <see cref="T:Speckle.Sdk.Models.GraphTraversal.TraversalContext"/></returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.ITraversalRule">
+            <summary>
+            Interface for a definition of conditional traversal of <see cref="T:Speckle.Sdk.Models.Base"/> objects.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.MembersToTraverse(Speckle.Sdk.Models.Base)">
+            <param name="b"></param>
+            <returns>The member names to traverse</returns>
+            <remarks>Return may include member names <paramref name="b"/> doesn't have</remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.DoesRuleHold(Speckle.Sdk.Models.Base)">
+            <summary>
+            Evaluates the traversal rule given <paramref name="o"/>
+            </summary>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.ShouldReturn">
+            <summary>
+            When <see langword="false"/>,
+            <see cref="T:Speckle.Sdk.Models.Base"/> objects for which this rule applies,
+            will be filtered out from the traversal output
+            (but still traversed normally, as per the <see cref="M:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.MembersToTraverse(Speckle.Sdk.Models.Base)"/>)
+            </summary>
+            <remarks>
+            This property was added to allow for easier filtering of the return of <see cref="M:Speckle.Sdk.Models.GraphTraversal.GraphTraversal`1.Traverse(Speckle.Sdk.Models.Base)"/>.
+            Without the option to set some rules as false, it was necessary to duplicate part of the rules in a <see cref="M:System.Linq.Enumerable.Where``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})"/>
+            </remarks>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.DefaultRule">
+            <summary>
+            The "traverse none" rule that always holds true
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.TraversalRule">
+            <summary>
+            A traversal rule defines the conditional traversal behaviour when traversing a given <see cref="T:Speckle.Sdk.Models.Base"/> objects.
+            Specifies what members to traverse if any provided <see cref="F:Speckle.Sdk.Models.GraphTraversal.TraversalRule._conditions"/> are met.
+            </summary>
+            <remarks>Follows the builder pattern to ensure that a rule is complete before usable, see usages</remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.TraversalRule.NewTraversalRule">
+            <returns>a new Traversal Rule to be initialised using the Builder Pattern interfaces</returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderWhen">
+            <summary>
+            Builder Pattern Interface for a traversal rule in a partially built (unusable state)
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderWhen.When(Speckle.Sdk.Models.GraphTraversal.WhenCondition)">
+            <summary>
+            Adds a condition to this rule. This rule will hold true when ANY of its conditions holds true.
+            </summary>
+            <param name="condition"></param>
+            <returns>Traversal rule in a building (unusable) state</returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.SelectMembers">
+            <summary>
+            Delegate for selecting members (by member name) of an given <see cref="T:Speckle.Sdk.Models.Base"/> object
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderTraverse">
+            <summary>
+            Builder Pattern Interface for a traversal rule in a partially built (unusable state)
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderTraverse.ContinueTraversing(Speckle.Sdk.Models.GraphTraversal.SelectMembers)">
+            <seealso cref="M:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.MembersToTraverse(Speckle.Sdk.Models.Base)"/>
+            <param name="membersToTraverse">Function returning the members that should be traversed for objects where this rule holds <see langword = "true"/></param>
+            <returns>Traversal rule in a usable state</returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderReturn">
+            <summary>
+            Builder Pattern Interface for a traversal rule in a usable state, with an (optional) final step to set the value of <see cref="P:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.ShouldReturn"/>
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.ITraversalBuilderReturn.ShouldReturnToOutput(System.Boolean)">
+            <seealso cref="M:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.MembersToTraverse(Speckle.Sdk.Models.Base)"/>
+            <param name="shouldReturn">value to set <see cref="P:Speckle.Sdk.Models.GraphTraversal.ITraversalRule.ShouldReturn"/></param>
+            <returns>Traversal rule in a usable state</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.TraversalContextExtensions.GetPropertyPath(Speckle.Sdk.Models.GraphTraversal.TraversalContext)">
+            <summary>
+            Walks up the tree, returning <see cref="P:Speckle.Sdk.Models.GraphTraversal.TraversalContext.PropName"/> values, starting with <paramref name="context"/>,
+            walking up <see cref="P:Speckle.Sdk.Models.GraphTraversal.TraversalContext.Parent"/> nodes
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.TraversalContextExtensions.GetAscendants(Speckle.Sdk.Models.GraphTraversal.TraversalContext)">
+            <summary>
+            Walks up the tree, returning all ascendant, including <paramref name="context"/>
+            </summary>
+            <param name="context"></param>
+            <returns><paramref name="context"/> and all its ascendants</returns>
+        </member>
+        <member name="M:Speckle.Sdk.Models.GraphTraversal.TraversalContextExtensions.GetAscendantOfType``1(Speckle.Sdk.Models.GraphTraversal.TraversalContext)">
+            <summary>
+            Walks up the tree, returning all <typeparamref name="T"/> typed ascendant, starting the <typeparamref name="T"/> closest <paramref name="context"/>,
+            walking up <see cref="P:Speckle.Sdk.Models.GraphTraversal.TraversalContext.Parent"/> nodes
+            </summary>
+            <param name="context"></param>
+            <returns><paramref name="context"/> and all its ascendants of type <typeparamref name="T"/></returns>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Instances.IInstanceComponent">
+            <summary>
+            Abstracts over <see cref="T:Speckle.Sdk.Models.Instances.InstanceProxy"/> and <see cref="T:Speckle.Sdk.Models.Instances.InstanceDefinitionProxy"/> for sorting and grouping in receive operations.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.IInstanceComponent.maxDepth">
+            <summary>
+            The maximum "depth" at which this <see cref="T:Speckle.Sdk.Models.Instances.InstanceProxy"/> or <see cref="T:Speckle.Sdk.Models.Instances.InstanceDefinitionProxy"/> was found. On receive, as instances can be composed of other instances, we need to start from the deepest instance elements first when reconstructing them, starting with definitions first.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Instances.InstanceDefinitionProxy">
+            <summary>
+            A proxy class for an instance definition.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.InstanceDefinitionProxy.objects">
+            <summary>
+            The original ids of the objects that are part of this definition, as present in the source host app. On receive, they will be mapped to corresponding newly created definition ids.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.InstanceDefinitionProxy.name">
+            <summary>
+            Name of the instance definition proxy collection which is unique for rhino, autocad and sketchup
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Instances.InstanceProxy">
+            <summary>
+            A proxy class for an instance (e.g, a rhino block, or an autocad block reference).
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.InstanceProxy.definitionId">
+            <summary>
+            The definition id as present in the original host app. On receive, it will be mapped to the newly created definition id.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.InstanceProxy.transform">
+            <summary>
+            The transform of the instance reference.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Instances.InstanceProxy.units">
+            <summary>
+            The units of the host application file.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.NestingInstructions">
+            <summary>
+            Container for a reference to a parent's applicationId and an Action to
+            execute in order to nest the child on the parent
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Proxies.ColorProxy">
+            <summary>
+            Represents a color that is found on objects and collections in a root collection
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Proxies.ColorProxy.value">
+            <summary>
+            The argb int of the color
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Proxies.ColorProxy.name">
+            <summary>
+            The name, if any, of the color
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Proxies.GroupProxy">
+            <summary>
+            Grouped objects with a meaningful way for host application so use this proxy if you want to group object references for any purpose.
+            i.e. in rhino -> creating group make objects selectable/moveable/editable together.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Proxies.GroupProxy.name">
+            <summary>
+            Name of the group proxy collection which is unique for rhino, autocad and sketchup
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Models.Proxies.IProxyCollection">
+            <summary>
+            Collection to proxy objects that lies in definitions, groups or whatever logic in the host app.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Models.Proxies.IProxyCollection.objects">
+            <summary>
+            The original ids of the objects that are part of this definition, as present in the source host app.
+            On receive, they will be mapped to corresponding newly created definition ids.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.ScrutorFunctions">
+            <summary>
+            This is from the Scrutor project (https://github.com/khellang/Scrutor) but we don't want to pull in the dependencies
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.TYPE_DISCRIMINATOR">
+            <summary>
+            Property that describes the type of the object.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.ReadTransport">
+            <summary>
+            The sync transport. This transport will be used synchronously.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer.DeserializeAsync(System.String)">
+            <param name="rootObjectJson">The JSON string of the object to be deserialized <see cref="T:Speckle.Sdk.Models.Base"/></param>
+            <returns>A <see cref="T:Speckle.Sdk.Models.Base"/> typed object deserialized from the <paramref name="rootObjectJson"/></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when <see cref="F:Speckle.Sdk.Serialisation.SpeckleObjectDeserializer._isBusy"/></exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="rootObjectJson"/> was null</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException"><paramref name="rootObjectJson"/> cannot be deserialised to type <see cref="T:Speckle.Sdk.Models.Base"/></exception>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.ObjectReferences">
+            <summary>
+            Keeps track of all detached children created during serialisation that have an applicationId (provided this serializer instance has been told to track detached children).
+            This is currently used to cache previously converted objects and avoid their conversion if they haven't changed. See the DUI3 send bindings in rhino or another host app.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.WriteTransports">
+            <summary>The sync transport. This transport will be used synchronously.</summary>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.Elapsed">
+            <summary>The current total elapsed time spent serializing</summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.#ctor(System.Collections.Generic.IReadOnlyCollection{Speckle.Sdk.Transports.ITransport},System.IProgress{Speckle.Sdk.Transports.ProgressArgs},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Creates a new Serializer instance.
+            </summary>
+            <param name="writeTransports">The transports detached children should be persisted to.</param>
+            <param name="onProgressAction">Used to track progress.</param>
+            <param name="trackDetachedChildren">Whether to store all detachable objects while serializing. They can be retrieved via <see cref="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.ObjectReferences"/> post serialization.</param>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.Serialize(Speckle.Sdk.Models.Base)">
+            <param name="baseObj">The object to serialize</param>
+            <returns>The serialized JSON</returns>
+            <exception cref="T:System.InvalidOperationException">The serializer is busy (already serializing an object)</exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Failed to save object in one or more <see cref="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.WriteTransports"/></exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleSerializeException">Failed to extract (pre-serialize) properties from the <paramref name="baseObj"/></exception>
+            <exception cref="T:System.OperationCanceledException">One or more <see cref="P:Speckle.Sdk.Serialisation.SpeckleObjectSerializer.WriteTransports"/>'s cancellation token requested cancel</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.Utilities.TypeCache.FlushCachedTypes">
+            <summary>
+            Flushes kit's (discriminator, type) cache. Useful if you're dynamically loading more kits at runtime, that provide better coverage of what you're deserialising, and it's now somehow poisoned because the higher level types were not originally available.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.Utilities.ValueConverter.IsGenericList(System.Type)">
+            <summary>
+            Tests that the given <paramref name="type"/> is assignable from a generic type def <see cref="T:System.Collections.Generic.List`1"/>
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Speckle.Sdk.Serialisation.V2.Receive.DeserializeProcess._allIds">
+            <summary>
+            All meaningful ids in the upcoming version
+            </summary>
+        </member>
+        <member name="F:Speckle.Sdk.Serialisation.V2.Receive.DictionaryConverter.TYPE_DISCRIMINATOR">
+            <summary>
+            Property that describes the type of the object.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Receive.ObjectDeserializer.Deserialize(Speckle.Sdk.Serialisation.Json,System.Threading.CancellationToken)">
+            <param name="objectJson">The JSON string of the object to be deserialized <see cref="T:Speckle.Sdk.Models.Base"/></param>
+            <returns>A <see cref="T:Speckle.Sdk.Models.Base"/> typed object deserialized from the <paramref name="objectJson"/></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="objectJson"/> was null</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException"><paramref name="objectJson"/> cannot be deserialised to type <see cref="T:Speckle.Sdk.Models.Base"/></exception>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Receive.ValueConverter.IsGenericList(System.Type)">
+            <summary>
+            Tests that the given <paramref name="type"/> is assignable from a generic type def <see cref="T:System.Collections.Generic.List`1"/>
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Receive.IObjectDeserializer.Deserialize(Speckle.Sdk.Serialisation.Json,System.Threading.CancellationToken)">
+            <param name="objectJson">The JSON string of the object to be deserialized <see cref="T:Speckle.Sdk.Models.Base"/></param>
+            <returns>A <see cref="T:Speckle.Sdk.Models.Base"/> typed object deserialized from the <paramref name="objectJson"/></returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="objectJson"/> was null</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleDeserializeException"><paramref name="objectJson"/> cannot be deserialised to type <see cref="T:Speckle.Sdk.Models.Base"/></exception>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.V2.Send.IObjectSerializer.ObjectReferences">
+            <summary>
+            Keeps track of all detached children created during serialisation that have an applicationId (provided this serializer instance has been told to track detached children).
+            This is currently used to cache previously converted objects and avoid their conversion if they haven't changed. See the DUI3 send bindings in rhino or another host app.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Send.IObjectSerializer.Serialize(Speckle.Sdk.Models.Base)">
+            <param name="baseObj">The object to serialize</param>
+            <returns>The serialized JSON</returns>
+            <exception cref="T:System.InvalidOperationException">The serializer is busy (already serializing an object)</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleSerializeException">Failed to extract (pre-serialize) properties from the <paramref name="baseObj"/></exception>
+        </member>
+        <member name="P:Speckle.Sdk.Serialisation.V2.Send.ObjectSerializer.ObjectReferences">
+            <summary>
+            Keeps track of all detached children created during serialisation that have an applicationId (provided this serializer instance has been told to track detached children).
+            This is currently used to cache previously converted objects and avoid their conversion if they haven't changed. See the DUI3 send bindings in rhino or another host app.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Send.ObjectSerializer.#ctor(Speckle.Sdk.Serialisation.V2.Send.IBasePropertyGatherer,System.Collections.Generic.IReadOnlyDictionary{Speckle.Sdk.Serialisation.Id,Speckle.Sdk.Serialisation.V2.Send.NodeInfo},Speckle.Sdk.Dependencies.Pool{System.Collections.Generic.List{System.ValueTuple{Speckle.Sdk.Serialisation.Id,Speckle.Sdk.Serialisation.Json,System.Collections.Generic.Dictionary{Speckle.Sdk.Serialisation.Id,System.Int32}}}},Speckle.Sdk.Dependencies.Pool{System.Collections.Generic.List{Speckle.Sdk.Models.DataChunk}},Speckle.Sdk.Dependencies.Pool{System.Collections.Generic.List{System.Object}},System.Threading.CancellationToken)">
+            <summary>
+            Creates a new Serializer instance.
+            </summary>
+            <param name="cancellationToken"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Serialisation.V2.Send.ObjectSerializer.Serialize(Speckle.Sdk.Models.Base)">
+            <param name="baseObj">The object to serialize</param>
+            <returns>The serialized JSON</returns>
+            <exception cref="T:System.InvalidOperationException">The serializer is busy (already serializing an object)</exception>
+            <exception cref="T:Speckle.Sdk.Serialisation.SpeckleSerializeException">Failed to extract (pre-serialize) properties from the <paramref name="baseObj"/></exception>
+        </member>
+        <member name="T:Speckle.Sdk.SpeckleNonUserFacingException">
+            <summary>
+            These are exceptions who's message is not user friendly
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Transports.DiskTransport">
+            <summary>
+            Writes speckle objects to disk.
+            </summary>
+        </member>
+        <member name="T:Speckle.Sdk.Transports.ITransport">
+            <summary>
+            Interface defining the contract for transport implementations.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.ITransport.TransportName">
+            <summary>
+            Human readable name for the transport
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.ITransport.TransportContext">
+            <summary>
+            Extra descriptor properties of the given transport.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.ITransport.Elapsed">
+            <summary>
+             Show how much time the transport was busy for.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.ITransport.CancellationToken">
+            <summary>
+            Should be checked often and gracefully stop all in progress sending if requested.
+            </summary>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.ITransport.OnProgressAction">
+            <summary>
+            Used to report progress during the transport's longer operations.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.BeginWrite">
+            <summary>
+            Signals to the transport that writes are about to begin.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.EndWrite">
+            <summary>
+            Signals to the transport that no more items will need to be written.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.SaveObject(System.String,System.String)">
+            <summary>
+            Saves an object.
+            </summary>
+            <param name="id">The hash of the object.</param>
+            <param name="serializedObject">The full string representation of the object</param>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Failed to save object</exception>
+            <exception cref="T:System.OperationCanceledException"><see cref="P:Speckle.Sdk.Transports.ITransport.CancellationToken"/> requested cancel</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.WriteComplete">
+            <summary>
+            Awaitable method to figure out whether writing is completed.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.GetObject(System.String)">
+            <param name="id">The object's hash.</param>
+            <returns>The serialized object data, or <see langword="null"/> if the transport cannot find the object</returns>
+            <exception cref="T:System.OperationCanceledException"><see cref="P:Speckle.Sdk.Transports.ITransport.CancellationToken"/> requested cancel</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.CopyObjectAndChildren(System.String,Speckle.Sdk.Transports.ITransport)">
+            <summary>
+            Copies the parent object and all its children to the provided transport.
+            </summary>
+            <param name="id">The id of the object you want to copy.</param>
+            <param name="targetTransport">The transport you want to copy the object to.</param>
+            <returns>The string representation of the root object.</returns>
+            <exception cref="T:System.ArgumentException">The provided arguments are not valid</exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">The transport could not complete the operation</exception>
+            <exception cref="T:System.OperationCanceledException"><see cref="P:Speckle.Sdk.Transports.ITransport.CancellationToken"/> requested cancel</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ITransport.HasObjects(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Checks if objects are present in the transport
+            </summary>
+            <param name="objectIds">List of object ids to check</param>
+            <returns>A dictionary with the specified object ids as keys and boolean values, whether each object is present in the transport or not</returns>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">The transport could not complete the operation</exception>
+            <exception cref="T:System.OperationCanceledException"><see cref="P:Speckle.Sdk.Transports.ITransport.CancellationToken"/> requested cancel</exception>
+        </member>
+        <member name="T:Speckle.Sdk.Transports.MemoryTransport">
+            <summary>
+            An in memory storage of speckle objects.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.ServerTransport.#ctor(Speckle.Sdk.Helpers.ISpeckleHttp,Speckle.Sdk.Logging.ISdkActivityFactory,Speckle.Sdk.Credentials.Account,System.String,System.Int32,System.String)">
+            <param name="account"></param>
+            <param name="streamId"></param>
+            <param name="timeoutSeconds"></param>
+            <param name="blobStorageFolder">Defaults to <see cref="M:Speckle.Sdk.Logging.SpecklePathProvider.BlobStoragePath(System.String)"/></param>
+            <exception cref="T:System.ArgumentException"><paramref name="streamId"/> was not formatted as valid stream id</exception>
+        </member>
+        <member name="T:Speckle.Sdk.Transports.ServerUtils.GzipContent">
+            <remarks>
+            https://cymbeline.ch/2014/03/16/gzip-encoding-an-http-post-request-body/
+            </remarks>
+        </member>
+        <member name="F:Speckle.Sdk.Transports.SQLiteTransport._writeTimer">
+            <summary>
+            Timer that ensures queue is consumed if less than MAX_TRANSACTION_SIZE objects are being sent.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Connects to an SQLite DB at {<paramref name="basePath"/>}/{<paramref name="applicationName"/>}/{<paramref name="scope"/>}.db
+            Will attempt to create db + directory structure as needed
+            </summary>
+            <param name="basePath">defaults to <see cref="M:Speckle.Sdk.Logging.SpecklePathProvider.UserApplicationDataPath"/> if <see langword="null"/></param>
+            <param name="applicationName">defaults to <c>"Speckle"</c> if <see langword="null"/></param>
+            <param name="scope">defaults to <c>"Data"</c> if <see langword="null"/></param>
+            <exception cref="T:Microsoft.Data.Sqlite.SqliteException">Failed to initialize a connection to the db</exception>
+            <exception cref="T:Speckle.Sdk.Transports.TransportException">Path was invalid or could not be created</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.Initialize">
+            <exception cref="T:Microsoft.Data.Sqlite.SqliteException">Failed to initialize connection to the SQLite DB</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.GetAllObjects">
+            <summary>
+            Returns all the objects in the store. Note: do not use for large collections.
+            </summary>
+            <returns></returns>
+            <remarks>This function uses a separate <see cref="T:Microsoft.Data.Sqlite.SqliteConnection"/> so is safe to call concurrently (unlike most other transport functions)</remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.DeleteObject(System.String)">
+            <summary>
+            Deletes an object. Note: do not use for any speckle object transport, as it will corrupt the database.
+            </summary>
+            <param name="hash"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.UpdateObject(System.String,System.String)">
+            <summary>
+            Updates an object.
+            </summary>
+            <param name="hash"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.WriteComplete">
+            <summary>
+            Awaits untill write completion (ie, the current queue is fully consumed).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.SQLiteTransport.WriteCompletionStatus">
+            <summary>
+            Returns true if the current write queue is empty and comitted.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.SaveObject(System.String,System.String)">
+            <summary>
+            Adds an object to the saving queue.
+            </summary>
+            <param name="id"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.SaveObjectSync(System.String,System.String)">
+            <summary>
+            Directly saves the object in the db.
+            </summary>
+            <param name="hash"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport.GetObject(System.String)">
+            <summary>
+            Gets an object.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Speckle.Sdk.Transports.SQLiteTransport2._writeTimer">
+            <summary>
+            Timer that ensures queue is consumed if less than MAX_TRANSACTION_SIZE objects are being sent.
+            </summary>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.Initialize">
+            <exception cref="T:Microsoft.Data.Sqlite.SqliteException">Failed to initialize connection to the SQLite DB</exception>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.GetAllObjects">
+            <summary>
+            Returns all the objects in the store. Note: do not use for large collections.
+            </summary>
+            <returns></returns>
+            <remarks>This function uses a separate <see cref="T:Microsoft.Data.Sqlite.SqliteConnection"/> so is safe to call concurrently (unlike most other transport functions)</remarks>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.DeleteObject(System.String)">
+            <summary>
+            Deletes an object. Note: do not use for any speckle object transport, as it will corrupt the database.
+            </summary>
+            <param name="hash"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.UpdateObject(System.String,System.String)">
+            <summary>
+            Updates an object.
+            </summary>
+            <param name="hash"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.WriteComplete">
+            <summary>
+            Awaits untill write completion (ie, the current queue is fully consumed).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:Speckle.Sdk.Transports.SQLiteTransport2.WriteCompletionStatus">
+            <summary>
+            Returns true if the current write queue is empty and comitted.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.SaveObject(System.String,System.String)">
+            <summary>
+            Adds an object to the saving queue.
+            </summary>
+            <param name="id"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.SaveObjectSync(System.String,System.String)">
+            <summary>
+            Directly saves the object in the db.
+            </summary>
+            <param name="hash"></param>
+            <param name="serializedObject"></param>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.SQLiteTransport2.GetObject(System.String)">
+            <summary>
+            Gets an object.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Speckle.Sdk.Transports.Utilities.WaitUntil(System.Func{System.Boolean},System.Int32)">
+            <summary>
+            Waits until the provided function returns true.
+            </summary>
+            <param name="condition"></param>
+            <param name="frequency"></param>
+            <returns></returns>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.AllowNullAttribute">
+            <summary>
+            Specifies that null is allowed as an input even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute">
+            <summary>
+            Indicates that the specified method parameter expects a constant.
+            </summary>
+            <remarks>
+            This can be used to inform tooling that a constant should be used as an argument for the annotated parameter.
+            </remarks>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute.Min">
+            <summary>
+            Indicates the minimum bound of the expected constant, inclusive.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ConstantExpectedAttribute.Max">
+            <summary>
+            Indicates the maximum bound of the expected constant, inclusive.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DisallowNullAttribute">
+            <summary>
+            Specifies that null is disallowed as an input even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute">
+            <summary>
+            Applied to a method that will never return under any circumstance.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute">
+            <summary>
+            Specifies that the method will not return if the associated Boolean parameter is passed the specified value.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified parameter value.
+            </summary>
+            <param name="parameterValue">
+            The condition parameter value. Code after the method will be considered unreachable
+            by diagnostics if the argument to the associated parameter matches this value.
+            </param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute.ParameterValue">
+            <summary>
+            Gets the condition parameter value.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.ExperimentalAttribute">
+            <summary>
+            Indicates that an API is experimental and it may change in the future.
+            </summary>
+            <remarks>
+            This attribute allows call sites to be flagged with a diagnostic that indicates that an experimental
+            feature is used. Authors can use this attribute to ship preview features in their assemblies.
+            </remarks>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.ExperimentalAttribute"/> class,
+            specifying the ID that the compiler will use when reporting a use of the API the attribute applies to.
+            </summary>
+            <param name="diagnosticId">The ID that the compiler will use when reporting a use of the API the attribute applies to.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.DiagnosticId">
+            <summary>
+            Gets the ID that the compiler will use when reporting a use of the API the attribute applies to.
+            </summary>
+            <value>The unique diagnostic ID.</value>
+            <remarks>
+            The diagnostic ID is shown in build output for warnings and errors.
+            <para>This property represents the unique ID that can be used to suppress the warnings or errors, if needed.</para>
+            </remarks>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.ExperimentalAttribute.UrlFormat">
+            <summary>
+            Gets or sets the URL for corresponding documentation.
+            The API accepts a format string instead of an actual URL, creating a generic URL that includes the diagnostic ID.
+            </summary>
+            <value>The format string that represents a URL to corresponding documentation.</value>
+            <remarks>An example format string is <c>https://contoso.com/obsoletion-warnings/{0}</c>.</remarks>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullAttribute">
+            <summary>
+            Specifies that an output may be null even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute">
+            <summary>
+            Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter may be null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets the return value condition.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property members have not-null values.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the attribute with a field or property member.
+            </summary>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes the attribute with the list of field and property members.
+            </summary>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property
+            members have not-null values when returning with the specified return value condition.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String)">
+            <summary>
+            Initializes the attribute with the specified return value condition and a field or property member.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String[])">
+            <summary>
+            Initializes the attribute with the specified return value condition and list of field and property members.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets the return value condition.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
+            <summary>
+            Gets field or property member names.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullAttribute">
+            <summary>
+            Specifies that an output will not be null even if the corresponding type allows it.
+            Specifies that an input argument was not null when the call returns.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute">
+            <summary>
+            Specifies that the output will be non-null if the named parameter is non-null.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the attribute with the associated parameter name.
+            </summary>
+            <param name="parameterName">The associated parameter name. The output will be non-null if the argument to the parameter specified is non-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute.ParameterName">
+            <summary>
+            Gets the associated parameter name.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute">
+            <summary>
+            Specifies that when a method returns <see cref="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue"/>, the parameter will not be null even if the corresponding type allows it.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.#ctor(System.Boolean)">
+            <summary>
+            Initializes the attribute with the specified return value condition.
+            </summary>
+            <param name="returnValue">The return value condition. If the method returns this value, the associated parameter will not be null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.NotNullWhenAttribute.ReturnValue">
+            <summary>Gets the return value condition.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute">
+            <summary>
+            Specifies that this constructor sets all required members for the current type,
+            and callers do not need to set any required members themselves.
+            </summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute">
+            <summary>
+            Specifies the syntax used in a string.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String)">
+            <summary>
+            Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.
+            </summary>
+            <param name="syntax">The syntax identifier.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.#ctor(System.String,System.Object[])">
+            <summary>Initializes the <see cref="T:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute"/> with the identifier of the syntax used.</summary>
+            <param name="syntax">The syntax identifier.</param>
+            <param name="arguments">Optional arguments associated with the specific syntax employed.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Syntax">
+            <summary>Gets the identifier of the syntax used.</summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Arguments">
+            <summary>Optional arguments associated with the specific syntax employed.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.CompositeFormat">
+            <summary>The syntax identifier for strings containing composite formats for string formatting.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateOnlyFormat">
+            <summary>The syntax identifier for strings containing date format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.DateTimeFormat">
+            <summary>The syntax identifier for strings containing date and time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.EnumFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Enum"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.GuidFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.Guid"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Json">
+            <summary>The syntax identifier for strings containing JavaScript Object Notation (JSON).</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.NumericFormat">
+            <summary>The syntax identifier for strings containing numeric format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Regex">
+            <summary>The syntax identifier for strings containing regular expressions.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeOnlyFormat">
+            <summary>The syntax identifier for strings containing time format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.TimeSpanFormat">
+            <summary>The syntax identifier for strings containing <see cref="T:System.TimeSpan"/> format specifiers.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Uri">
+            <summary>The syntax identifier for strings containing URIs.</summary>
+        </member>
+        <member name="F:System.Diagnostics.CodeAnalysis.StringSyntaxAttribute.Xml">
+            <summary>The syntax identifier for strings containing XML.</summary>
+        </member>
+        <member name="T:System.Diagnostics.CodeAnalysis.UnscopedRefAttribute">
+            <summary>
+            Used to indicate a byref escapes and is not scoped.
+            </summary>
+            <remarks>
+            <para>
+            There are several cases where the C# compiler treats a <see langword="ref"/> as implicitly
+            <see langword="scoped"/> - where the compiler does not allow the <see langword="ref"/> to escape the method.
+            </para>
+            <para>
+            For example:
+            <list type="number">
+                <item><see langword="this"/> for <see langword="struct"/> instance methods.</item>
+                <item><see langword="ref"/> parameters that refer to <see langword="ref"/> <see langword="struct"/> types.</item>
+                <item><see langword="out"/> parameters.</item>
+            </list>
+            </para>
+            <para>
+            This attribute is used in those instances where the <see langword="ref"/> should be allowed to escape.
+            </para>
+            <para>
+            Applying this attribute, in any form, has impact on consumers of the applicable API. It is necessary for
+            API authors to understand the lifetime implications of applying this attribute and how it may impact their users.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:System.Index">
+            <summary>Represent a type can be used to index a collection either from the start or the end.</summary>
+            <remarks>
+            Index is used by the C# compiler to support the new index syntax
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 } ;
+            int lastElement = someArray[^1]; // lastElement = 5
+            </code>
+            </remarks>
+        </member>
+        <member name="M:System.Index.#ctor(System.Int32,System.Boolean)">
+            <summary>Construct an Index using a value and indicating if the index is from the start or from the end.</summary>
+            <param name="value">The index value. it has to be zero or positive number.</param>
+            <param name="fromEnd">Indicating if the index is from the start or from the end.</param>
+            <remarks>
+            If the Index constructed from the end, index value 1 means pointing at the last element and index value 0 means pointing at beyond last element.
+            </remarks>
+        </member>
+        <member name="P:System.Index.Start">
+            <summary>Create an Index pointing at first element.</summary>
+        </member>
+        <member name="P:System.Index.End">
+            <summary>Create an Index pointing at beyond last element.</summary>
+        </member>
+        <member name="M:System.Index.FromStart(System.Int32)">
+            <summary>Create an Index from the start at the position indicated by the value.</summary>
+            <param name="value">The index value from the start.</param>
+        </member>
+        <member name="M:System.Index.FromEnd(System.Int32)">
+            <summary>Create an Index from the end at the position indicated by the value.</summary>
+            <param name="value">The index value from the end.</param>
+        </member>
+        <member name="P:System.Index.Value">
+            <summary>Returns the index value.</summary>
+        </member>
+        <member name="P:System.Index.IsFromEnd">
+            <summary>Indicates whether the index is from the start or the end.</summary>
+        </member>
+        <member name="M:System.Index.GetOffset(System.Int32)">
+            <summary>Calculate the offset from the start using the giving collection length.</summary>
+            <param name="length">The length of the collection that the Index will be used with. length has to be a positive value</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter and the returned offset value against negative values.
+            we don't validate either the returned offset is greater than the input length.
+            It is expected Index will be used with collections which always have non negative length/count. If the returned offset is negative and
+            then used to index a collection will get out of range exception which will be same affect as the validation.
+            </remarks>
+        </member>
+        <member name="M:System.Index.Equals(System.Object)">
+            <summary>Indicates whether the current Index object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Index.Equals(System.Index)">
+            <summary>Indicates whether the current Index object is equal to another Index object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Index.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Index.op_Implicit(System.Int32)~System.Index">
+            <summary>Converts integer number to an Index.</summary>
+        </member>
+        <member name="M:System.Index.ToString">
+            <summary>Converts the value of the current Index object to its equivalent string representation.</summary>
+        </member>
+        <member name="T:System.Range">
+            <summary>Represent a range has start and end indexes.</summary>
+            <remarks>
+            Range is used by the C# compiler to support the range syntax.
+            <code>
+            int[] someArray = new int[5] { 1, 2, 3, 4, 5 };
+            int[] subArray1 = someArray[0..2]; // { 1, 2 }
+            int[] subArray2 = someArray[1..^0]; // { 2, 3, 4, 5 }
+            </code>
+            </remarks>
+        </member>
+        <member name="P:System.Range.Start">
+            <summary>Represent the inclusive start index of the Range.</summary>
+        </member>
+        <member name="P:System.Range.End">
+            <summary>Represent the exclusive end index of the Range.</summary>
+        </member>
+        <member name="M:System.Range.#ctor(System.Index,System.Index)">
+            <summary>Construct a Range object using the start and end indexes.</summary>
+            <param name="start">Represent the inclusive start index of the range.</param>
+            <param name="end">Represent the exclusive end index of the range.</param>
+        </member>
+        <member name="M:System.Range.Equals(System.Object)">
+            <summary>Indicates whether the current Range object is equal to another object of the same type.</summary>
+            <param name="value">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Range.Equals(System.Range)">
+            <summary>Indicates whether the current Range object is equal to another Range object.</summary>
+            <param name="other">An object to compare with this object</param>
+        </member>
+        <member name="M:System.Range.GetHashCode">
+            <summary>Returns the hash code for this instance.</summary>
+        </member>
+        <member name="M:System.Range.ToString">
+            <summary>Converts the value of the current Range object to its equivalent string representation.</summary>
+        </member>
+        <member name="M:System.Range.StartAt(System.Index)">
+            <summary>Create a Range object starting from start index to the end of the collection.</summary>
+        </member>
+        <member name="M:System.Range.EndAt(System.Index)">
+            <summary>Create a Range object starting from first element in the collection to the end Index.</summary>
+        </member>
+        <member name="P:System.Range.All">
+            <summary>Create a Range object starting from first element to the end.</summary>
+        </member>
+        <member name="M:System.Range.GetOffsetAndLength(System.Int32)">
+            <summary>Calculate the start offset and length of range object using a collection length.</summary>
+            <param name="length">The length of the collection that the range will be used with. length has to be a positive value.</param>
+            <remarks>
+            For performance reason, we don't validate the input length parameter against negative values.
+            It is expected Range will be used with collections which always have non negative length/count.
+            We validate the range is inside the length scope though.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute">
+            <summary>
+            An attribute that allows parameters to receive the expression of other parameters.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"/> class.
+            </summary>
+            <param name="parameterName">The condition parameter value.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CallerArgumentExpressionAttribute.ParameterName">
+            <summary>
+            Gets the parameter name the expression is retrieved from.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CollectionBuilderAttribute.#ctor(System.Type,System.String)">
+            <summary>
+            Initialize the attribute to refer to the <paramref name="methodName"/> method on the <paramref name="builderType"/> type.
+            </summary>
+            <param name="builderType">The type of the builder to use to construct the collection.</param>
+            <param name="methodName">The name of the method on the builder to use to construct the collection.</param>
+            <remarks>
+            <paramref name="methodName"/> must refer to a static method that accepts a single parameter of
+            type <see cref="T:System.ReadOnlySpan`1"/> and returns an instance of the collection being built containing
+            a copy of the data from that span.  In future releases of .NET, additional patterns may be supported.
+            </remarks>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CollectionBuilderAttribute.BuilderType">
+            <summary>
+            Gets the type of the builder to use to construct the collection.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CollectionBuilderAttribute.MethodName">
+            <summary>
+            Gets the name of the method on the builder to use to construct the collection.
+            </summary>
+            <remarks>
+            This should match the metadata name of the target method.
+            For example, this might be ".ctor" if targeting the type's constructor.
+            </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute">
+            <summary>
+            Indicates that compiler support for a particular feature is required for the location where this attribute is applied.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.#ctor(System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute"/> type.
+            </summary>
+            <param name="featureName">The name of the feature to indicate.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName">
+            <summary>
+            The name of the compiler feature.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.IsOptional">
+            <summary>
+            If true, the compiler can choose to allow access to the location where this attribute is applied if it does not understand <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/>.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RefStructs">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the ref structs C# feature.
+            </summary>
+        </member>
+        <member name="F:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.RequiredMembers">
+            <summary>
+            The <see cref="P:System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute.FeatureName"/> used for the required members C# feature.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute">
+            <summary>
+            Indicates which arguments to a method involving an interpolated string handler should be passed to that handler.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="argument">The name of the argument that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute"/> class.
+            </summary>
+            <param name="arguments">The names of the arguments that should be passed to the handler.</param>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.InterpolatedStringHandlerArgumentAttribute.Arguments">
+            <summary>
+            Gets the names of the arguments that should be passed to the handler.
+            </summary>
+            <remarks><see langword="null"/> may be used as the name of the receiver in an instance method.</remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.InterpolatedStringHandlerAttribute">
+            <summary>
+            Indicates the attributed type is to be used as an interpolated string handler.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.IsExternalInit">
+            <summary>
+            Reserved to be used by the compiler for tracking metadata.
+            This class should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ModuleInitializerAttribute">
+             <summary>
+             Used to indicate to the compiler that a method should be called
+             in its containing module's initializer.
+             </summary>
+             <remarks>
+             When one or more valid methods
+             with this attribute are found in a compilation, the compiler will
+             emit a module initializer which calls each of the attributed methods.
+            
+             Certain requirements are imposed on any method targeted with this attribute:
+             - The method must be `static`.
+             - The method must be an ordinary member method, as opposed to a property accessor, constructor, local function, etc.
+             - The method must be parameterless.
+             - The method must return `void`.
+             - The method must not be generic or be contained in a generic type.
+             - The method's effective accessibility must be `internal` or `public`.
+            
+             The specification for module initializers in the .NET runtime can be found here:
+             https://github.com/dotnet/runtime/blob/main/docs/design/specs/Ecma-335-Augments.md#module-initializer
+             </remarks>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute">
+            <summary>
+            Specifies the priority of a member in overload resolution. When unspecified, the default priority is 0.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute"/> class.
+            </summary>
+            <param name="priority">The priority of the attributed member. Higher numbers are prioritized, lower numbers are deprioritized. 0 is the default if no attribute is present.</param>
+        </member>
+        <member name="P:System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute.Priority">
+            <summary>
+            The priority of the member.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.ParamCollectionAttribute">
+            <summary>
+            Indicates that a method will allow a variable number of arguments in its invocation.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiredMemberAttribute">
+            <summary>
+            Specifies that a type has required members or that a member is required.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.RequiresLocationAttribute">
+            <summary>
+            Reserved for use by a compiler for tracking metadata.
+            This attribute should not be used by developers in source code.
+            </summary>
+        </member>
+        <member name="T:System.Runtime.CompilerServices.SkipLocalsInitAttribute">
+            <summary>
+            Used to indicate to the compiler that the <c>.locals init</c> flag should not be set in method headers.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute"/> class with the specified message.
+            </summary>
+            <param name="message">An optional message associated with this attribute instance.</param>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Message">
+            <summary>
+            Returns the optional message associated with this attribute instance.
+            </summary>
+        </member>
+        <member name="P:System.Runtime.Versioning.RequiresPreviewFeaturesAttribute.Url">
+            <summary>
+            Returns the optional URL associated with this attribute instance.
+            </summary>
+        </member>
+    </members>
+</doc>
