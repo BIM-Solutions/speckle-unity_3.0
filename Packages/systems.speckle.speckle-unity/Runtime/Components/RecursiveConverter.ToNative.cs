@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,7 +139,7 @@ namespace Speckle.ConnectorUnity.Components
         {
             var userPredicate = predicate ?? (_ => true);
 
-            var traversalFunc = DefaultTraversal.CreateBIMTraverseFunc(ConverterInstance);
+            var traversalFunc = DefaultTraversal.CreateTraversalFunc();
 
             var objectsToConvert = traversalFunc
                 .Traverse(rootObject)

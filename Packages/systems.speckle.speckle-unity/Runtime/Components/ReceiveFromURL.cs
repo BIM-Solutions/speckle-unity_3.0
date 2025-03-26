@@ -9,6 +9,7 @@ using Speckle.Core.Credentials;
 using Speckle.Core.Logging;
 using Speckle.Core.Models;
 using UnityEngine;
+using Version = Speckle.Core.Api.GraphQL.Models.Version;
 
 namespace Speckle.ConnectorUnity.Components
 {
@@ -58,13 +59,13 @@ namespace Speckle.ConnectorUnity.Components
                 _tokenSource.Token.ThrowIfCancellationRequested();
                 using Client c = new(accountTask.Result);
 
-                var objectIdTask = new Utils.Utils.WaitForTask<(string, Commit?)>(
+                var objectIdTask = new Utils.Utils.WaitForTask<(string, Version?)>(
                     async () => await GetObjectID(sw, c),
                     _tokenSource.Token
                 );
 
                 yield return objectIdTask;
-                (string objectId, Commit? commit) = objectIdTask.Result;
+                (string objectId, Version? version) = objectIdTask.Result;
 
                 Debug.Log($"Receiving from {sw.ServerUrl}...");
 
@@ -74,7 +75,7 @@ namespace Speckle.ConnectorUnity.Components
                             c,
                             sw.StreamId,
                             objectId,
-                            commit,
+                            version,
                             cancellationToken: _tokenSource.Token
                         ),
                     _tokenSource.Token
@@ -91,13 +92,14 @@ namespace Speckle.ConnectorUnity.Components
             }
         }
 
-        private async Task<(string objectId, Commit? commit)> GetObjectID(
+        private async Task<(string objectId, Version? commit)> GetObjectID(
             StreamWrapper sw,
             Client client
         )
         {
+            
             string objectId;
-            Commit? commit = null;
+            Version? commit = null;
             //OBJECT URL
             if (!string.IsNullOrEmpty(sw.ObjectId))
             {
@@ -106,7 +108,7 @@ namespace Speckle.ConnectorUnity.Components
             //COMMIT URL
             else if (!string.IsNullOrEmpty(sw.CommitId))
             {
-                commit = await client.CommitGet(sw.StreamId, sw.CommitId).ConfigureAwait(false);
+                commit = await client.Version.Get(sw.CommitId, sw.ObjectId ?? string.Empty, sw.StreamId ).ConfigureAwait(false);
                 objectId = commit.referencedObject;
             }
             //BRANCH URL OR STREAM URL
@@ -115,13 +117,13 @@ namespace Speckle.ConnectorUnity.Components
                 var branchName = string.IsNullOrEmpty(sw.BranchName) ? "main" : sw.BranchName;
 
                 var branch = await client
-                    .BranchGet(sw.StreamId, branchName, 1)
+                    .Model.Get(sw.StreamId, sw.ObjectId ?? string.Empty)
                     .ConfigureAwait(false);
-                if (!branch.commits.items.Any())
+                if (!branch.versions.items.Any())
                     throw new SpeckleException("The selected branch has no commits.");
 
-                commit = branch.commits.items[0];
-                objectId = branch.commits.items[0].referencedObject;
+                commit = branch.versions.items[0];
+                objectId = branch.versions.items[0].referencedObject;
             }
 
             return (objectId, commit);

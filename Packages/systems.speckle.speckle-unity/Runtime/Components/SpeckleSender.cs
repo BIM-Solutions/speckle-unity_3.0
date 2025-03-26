@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Speckle.ConnectorUnity.Utils;
 using Speckle.ConnectorUnity.Wrappers.Selection;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
 using Speckle.Core.Logging;
@@ -55,8 +56,8 @@ namespace Speckle.ConnectorUnity.Components
             if (
                 !GetSelection(
                     out Client? client,
-                    out Stream? stream,
-                    out Branch? branch,
+                    out Project? stream,
+                    out Model? branch,
                     out string? error
                 )
             )
@@ -156,7 +157,7 @@ namespace Speckle.ConnectorUnity.Components
             CancellationToken cancellationToken
         )
         {
-            string commitId = await client.CommitCreate(
+            string commitId = await client.Version.Create(
                 new CommitCreateInput
                 {
                     streamId = streamId,
@@ -176,8 +177,8 @@ namespace Speckle.ConnectorUnity.Components
 
         public bool GetSelection(
             [NotNullWhen(true)] out Client? client,
-            [NotNullWhen(true)] out Stream? stream,
-            [NotNullWhen(true)] out Branch? branch,
+            [NotNullWhen(true)] out Project? stream,
+            [NotNullWhen(true)] out Model? branch,
             [NotNullWhen(false)] out string? error
         )
         {

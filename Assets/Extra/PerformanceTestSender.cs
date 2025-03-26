@@ -2,6 +2,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Speckle.ConnectorUnity.Components;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Inputs;
+using Speckle.Core.Api.GraphQL.Models;
 using Speckle.Core.Credentials;
 using Speckle.Core.Models;
 using Speckle.Core.Transports;
@@ -47,20 +49,23 @@ namespace Extra
         private async Task<string> Send(Base data, string branchName)
         {
             Client client = sender.Account.Client!;
-            Stream stream = sender.Stream.Selected;
+            Project stream = sender.Stream.Selected;
             Account selectedAccount = sender.Account.Selected!;
 
             using ServerTransport transport = new(selectedAccount, stream!.id);
 
-            string branchId = await client.BranchCreate(
-                new BranchCreateInput() { streamId = stream.id, name = branchName }
-            );
+            var createModelInput = new CreateModelInput(branchName,"", stream.id);
+            
+
+            Model model = await client.Model.Create(createModelInput);
+
+            string modelId = model.id;
 
             return await SpeckleSender.SendDataAsync(
                 remoteTransport: transport,
                 data,
                 client,
-                branchId,
+                modelId,
                 true
             );
         }

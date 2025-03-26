@@ -231,10 +231,10 @@ namespace Speckle.ConnectorUnity
                 }
 
                 //update ui
-                GameObject
-                    .Find("_SpeckleExamples")
-                    .GetComponent<SpeckleExamples>()
-                    .RemoveStreamPrefab(gameObject);
+                //GameObject
+                    //.Find("_SpeckleExamples")
+                    //.GetComponent<SpeckleExamples>()
+                    //.RemoveStreamPrefab(gameObject);
 
                 //kill it
                 Destroy(gameObject);
