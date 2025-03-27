@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using Speckle.Core.Credentials;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Version = Speckle.Core.Api.GraphQL.Models.Version;
 
 namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
 {
@@ -25,7 +27,7 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
                 ("Id", s => s.userInfo.id),
                 ("Name", s => s.userInfo.name),
                 ("Email", s => s.userInfo.email),
-                ("Company", s => s.userInfo.company),
+                ("Company", s => s.userInfo.company ?? string.Empty),
                 ("Server", s => s.serverInfo.name),
                 ("URL", s => s.serverInfo.url),
                 ("Description", s => s.serverInfo.description),
@@ -34,21 +36,21 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
     }
 
     [CustomPropertyDrawer(typeof(StreamSelection))]
-    public sealed class StreamSelectionDrawer : OptionSelectionDrawer<Stream>
+    public sealed class StreamSelectionDrawer : OptionSelectionDrawer<Project>
     {
         protected override bool DisplayRefresh => true;
 
-        protected override string FormatOption(Stream o) => $"{o.name}";
+        protected override string FormatOption(Project o) => $"{o.name}";
 
         public StreamSelectionDrawer()
         {
             properties = new[] { $"<{nameof(StreamSelection.StreamsLimit)}>k__BackingField" };
 
-            details = new (string, Func<Stream, string>)[]
+            details = new (string, Func<Project, string>)[]
             {
                 ("Project id", s => s.id),
                 ("Description", s => s.description),
-                ("Is Public", s => s.isPublic.ToString()),
+                ("Is Public", s => s.visibility.ToString()),
                 ("Role", s => s.role),
                 ("Created at", s => s.createdAt.ToString(CultureInfo.InvariantCulture)),
                 ("Updated at", s => s.updatedAt.ToString(CultureInfo.InvariantCulture)),
@@ -57,11 +59,11 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
     }
 
     [CustomPropertyDrawer(typeof(BranchSelection))]
-    public sealed class BranchSelectionDrawer : OptionSelectionDrawer<Branch>
+    public sealed class BranchSelectionDrawer : OptionSelectionDrawer<Model>
     {
         protected override bool DisplayRefresh => true;
 
-        protected override string FormatOption(Branch o) => $"{o.name}";
+        protected override string FormatOption(Model o) => $"{o.name}";
 
         public BranchSelectionDrawer()
         {
@@ -71,7 +73,7 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
                 $"<{nameof(BranchSelection.CommitsLimit)}>k__BackingField",
             };
 
-            details = new (string, Func<Branch, string>)[]
+            details = new (string, Func<Model, string>)[]
             {
                 ("Model Id", s => s.id),
                 ("Description", s => s.description),
@@ -80,19 +82,19 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection.Editor
     }
 
     [CustomPropertyDrawer(typeof(CommitSelection))]
-    public sealed class CommitSelectionDrawer : OptionSelectionDrawer<Commit>
+    public sealed class CommitSelectionDrawer : OptionSelectionDrawer<Version>
     {
-        protected override string FormatOption(Commit o) => $"{o.message} - {o.id}";
+        protected override string FormatOption(Version o) => $"{o.message} - {o.id}";
 
         public CommitSelectionDrawer()
         {
-            details = new (string, Func<Commit, string>)[]
+            details = new (string, Func<Version, string>)[]
             {
                 ("Version Id", s => s.id),
-                ("Author Name", s => s.authorName),
-                ("Created At", s => s.createdAt.ToString(CultureInfo.InvariantCulture)),
-                ("Source Application", s => s.sourceApplication),
-                ("Reference Object Id", s => s.referencedObject),
+                //("Author Name", s => s.authorUser.name),
+                //("Created At", s => s.createdAt.ToString(CultureInfo.InvariantCulture)),
+                //("Source Application", s => s.sourceApplication),
+                //("Reference Object Id", s => s.referencedObject),
             };
         }
     }

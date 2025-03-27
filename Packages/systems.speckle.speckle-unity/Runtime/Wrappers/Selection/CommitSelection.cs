@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using Speckle.Core.Api;
 using Speckle.Core.Api.GraphQL.Models;
+using UnityEditor.SearchService;
 using UnityEngine;
+using Project = Speckle.Core.Api.GraphQL.Models.Project;
 using Version = Speckle.Core.Api.GraphQL.Models.Version;
 
 #nullable enable
@@ -29,13 +31,29 @@ namespace Speckle.ConnectorUnity.Wrappers.Selection
 
         protected override string? KeyFunction(Version? value) => value?.id;
 
-        public override void RefreshOptions()
+        public override async void RefreshOptions()
         {
-            Model? model = BranchSelection.Selected;
-            if (model == null)
+            Model? branch = BranchSelection.Selected;
+            if (branch == null)
                 return;
-            List<Version> versions = model.versions.items;
-            GenerateOptions(versions, (_, i) => i == 0);
+            List<Version> commits;
+            try
+            {
+                Project? project = this.BranchSelection.StreamSelection.Selected;
+                if (project == null)
+                {
+                    Debug.LogWarning("Project is null");
+                    return;
+                }
+                var model = await Client!.Model.GetWithVersions(branch.id, project.id);
+                commits = model.versions.items;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Unable to refresh {this}\n{e}");
+                commits = new List<Version>();
+            }
+            GenerateOptions(commits, (_, i) => i == 0);
         }
     }
 }
