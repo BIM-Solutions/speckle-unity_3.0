@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using UnityEngine;
 using UnityEngine.UI;
 using Text = UnityEngine.UI.Text;
 
 namespace Speckle.ConnectorUnity
 {
-    [Obsolete]
+    
     public class InteractionLogic : MonoBehaviour
     {
         private Receiver _receiver;
 
-        public void InitReceiver(Stream stream, bool autoReceive)
+        public void InitReceiver(Project stream, bool autoReceive)
         {
             gameObject.name = $"receiver-{stream.id}-{Guid.NewGuid().ToString()}";
             InitRemove();
 
             _receiver = gameObject.AddComponent<Receiver>();
-            _receiver.Stream = stream;
+            _receiver.Project = stream;
 
             var btn = gameObject.transform.Find("Btn").GetComponentInChildren<Button>();
             var streamText = gameObject.transform.Find("StreamText").GetComponentInChildren<Text>();
@@ -33,9 +34,9 @@ namespace Speckle.ConnectorUnity
 
             //populate branches
             branchesDropdown.options.Clear();
-            List<Branch> branches = _receiver.Stream.branches.items;
+            List<Model> branches = _receiver.Project.models.items;
             branches.Reverse();
-            foreach (Branch branch in branches)
+            foreach (Model branch in branches)
             {
                 branchesDropdown.options.Add(
                     new Dropdown.OptionData(branch.name.Replace(' ', '\u00A0'))
@@ -115,7 +116,7 @@ namespace Speckle.ConnectorUnity
             }
         }
 
-        public void InitSender(Stream stream)
+        public void InitSender(Project stream)
         {
             gameObject.name = $"sender-{stream.id}-{Guid.NewGuid().ToString()}";
             InitRemove();

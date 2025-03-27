@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +7,7 @@ using Sentry;
 using Speckle.ConnectorUnity.Components;
 using Speckle.ConnectorUnity.Utils;
 using Speckle.Core.Api;
+using Speckle.Core.Api.GraphQL.Models;
 using Speckle.Core.Api.SubscriptionModels;
 using Speckle.Core.Credentials;
 using Speckle.Core.Kits;
@@ -21,12 +22,13 @@ namespace Speckle.ConnectorUnity
     /// that handles conversions and subscriptions for you
     /// </summary>
     [RequireComponent(typeof(RecursiveConverter))]
-    [Obsolete("See " + nameof(SpeckleReceiver))]
+    
     public class Receiver : MonoBehaviour
     {
         public string StreamId;
         public string BranchName = "main";
-        public Stream Stream;
+        public string BranchId;
+        public Project Project;
         public int TotalChildrenCount = 0;
         public GameObject ReceivedData;
 
@@ -91,15 +93,15 @@ namespace Speckle.ConnectorUnity
 
             Task.Run(async () =>
             {
-                var mainBranch = await Client.BranchGet(StreamId, BranchName, 1);
-                if (!mainBranch.commits.items.Any())
+                var mainBranch = await Client.Model.Get(StreamId, BranchId);
+                if (!mainBranch.versions.items.Any())
                     throw new Exception("This branch has no commits");
-                var commit = mainBranch.commits.items[0];
+                var version = mainBranch.versions.items[0];
                 GetAndConvertObject(
-                    commit.referencedObject,
-                    commit.id,
-                    commit.sourceApplication,
-                    commit.authorId
+                    version.referencedObject,
+                    version.id,
+                    version.sourceApplication,
+                    version.authorUser.id
                 );
             });
         }
@@ -171,7 +173,7 @@ namespace Speckle.ConnectorUnity
 
             try
             {
-                await Client.CommitReceived(
+                await Client.Version.Received(
                     new CommitReceivedInput
                     {
                         streamId = StreamId,
