@@ -31,10 +31,10 @@ namespace Speckle.ConnectorUnity
 
             var res = await client.Project.GetWithModels(streamId, limit);
 
-            if (res.versions.items != null)
-            {
-                res.versions.items.Reverse();
-            }
+            //if (res.versions.items != null)
+            //{
+            //    res.versions.items.Reverse();
+            //}
 
             return res;
         }
