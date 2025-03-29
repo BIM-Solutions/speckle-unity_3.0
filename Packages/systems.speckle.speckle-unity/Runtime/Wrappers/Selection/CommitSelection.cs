@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Speckle.Core.Api;
 using Speckle.Core.Api.GraphQL.Models;
-using UnityEditor.SearchService;
 using UnityEngine;
 using Project = Speckle.Core.Api.GraphQL.Models.Project;
 using Version = Speckle.Core.Api.GraphQL.Models.Version;
